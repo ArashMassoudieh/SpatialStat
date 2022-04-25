@@ -44,6 +44,7 @@ SOURCES += \
     Src/command.cpp \
     Src/grid.cpp \
     Src/interface.cpp \
+    Src/script.cpp \
     main.cpp \
     mainwindow.cpp
 
@@ -62,6 +63,7 @@ HEADERS += \
     Include/command.h \
     Include/grid.h \
     Include/interface.h \
+    Include/script.h \
     mainwindow.h
 
 FORMS += \

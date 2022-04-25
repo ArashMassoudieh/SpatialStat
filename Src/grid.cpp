@@ -22,6 +22,6 @@ bool Grid::CreateGrid(const map<string,string> &Arguments)
             p[i][j].K_gauss = CVector(2);
         }
     }
-
+    return true;
 }
 
