@@ -13,9 +13,14 @@ class Grid : public Interface
 public:
     Grid();
     bool CreateGrid(const map<string,string> &Arguments);
+    static bool HasCommand(const string &cmd);
+    vector<string> commands();
+    static vector<string> Commands();
 private:
     geometrical_parameters GeometricParameters;
     vector<vector<distributed_property> > p;
+    static vector<string> list_of_commands;
+
 };
 
 #endif // GRID_H

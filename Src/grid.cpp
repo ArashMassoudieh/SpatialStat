@@ -1,4 +1,7 @@
 #include "grid.h"
+#include "Utilities.h"
+
+vector<string> list_of_commands = vector<string>({"CreateGrid"});
 
 Grid::Grid():Interface()
 {
@@ -25,3 +28,20 @@ bool Grid::CreateGrid(const map<string,string> &Arguments)
     return true;
 }
 
+vector<string> Grid::commands()
+{
+    return Commands();
+}
+
+vector<string> Grid::Commands()
+{
+    return list_of_commands;
+}
+
+bool Grid::HasCommand(const string &cmd)
+{
+    if (aquiutils::lookup(Commands(),cmd)!=-1)
+        return true;
+    else
+        return false;
+}

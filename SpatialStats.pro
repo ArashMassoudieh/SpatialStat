@@ -33,15 +33,16 @@ CONFIG(debug, debug|release) {
 
 
 SOURCES += \
-    ../Utility_Classes/DistributionNUnif.cpp \
-    ../Utility_Classes/Matrix.cpp \
-    ../Utility_Classes/Matrix_arma.cpp \
-    ../Utility_Classes/NormalDist.cpp \
-    ../Utility_Classes/QuickSort.cpp \
-    ../Utility_Classes/Utilities.cpp \
-    ../Utility_Classes/Vector.cpp \
-    ../Utility_Classes/Vector_arma.cpp \
+    ../Utilities/DistributionNUnif.cpp \
+    ../Utilities/Matrix.cpp \
+    ../Utilities/Matrix_arma.cpp \
+    ../Utilities/NormalDist.cpp \
+    ../Utilities/QuickSort.cpp \
+    ../Utilities/Utilities.cpp \
+    ../Utilities/Vector.cpp \
+    ../Utilities/Vector_arma.cpp \
     Src/command.cpp \
+    Src/environment.cpp \
     Src/grid.cpp \
     Src/interface.cpp \
     Src/script.cpp \
@@ -49,18 +50,19 @@ SOURCES += \
     mainwindow.cpp
 
 HEADERS += \
-    ../Utility_Classes/BTC.h \
-    ../Utility_Classes/BTCSet.h \
-    ../Utility_Classes/DistributionNUnif.h \
-    ../Utility_Classes/Matrix.h \
-    ../Utility_Classes/Matrix_arma.h \
-    ../Utility_Classes/NormalDist.h \
-    ../Utility_Classes/QuickSort.h \
-    ../Utility_Classes/Utilities.h \
-    ../Utility_Classes/Vector.h \
-    ../Utility_Classes/Vector_arma.h \
+    ../Utilities/BTC.h \
+    ../Utilities/BTCSet.h \
+    ../Utilities/DistributionNUnif.h \
+    ../Utilities/Matrix.h \
+    ../Utilities/Matrix_arma.h \
+    ../Utilities/NormalDist.h \
+    ../Utilities/QuickSort.h \
+    ../Utilities/Utilities.h \
+    ../Utilities/Vector.h \
+    ../Utilities/Vector_arma.h \
     Include/Structs.h \
     Include/command.h \
+    Include/environment.h \
     Include/grid.h \
     Include/interface.h \
     Include/script.h \
