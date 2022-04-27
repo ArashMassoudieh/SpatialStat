@@ -13,3 +13,8 @@ bool Interface::HasCommand(const string &cmd)
     else
         return false;
 }
+
+vector<string> Interface::commands()
+{
+    return vector<string>();
+}

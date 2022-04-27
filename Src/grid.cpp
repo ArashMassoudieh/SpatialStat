@@ -35,7 +35,8 @@ vector<string> Grid::commands()
 
 vector<string> Grid::Commands()
 {
-    return list_of_commands;
+    return vector<string>();
+    //return list_of_commands;
 }
 
 bool Grid::HasCommand(const string &cmd)
