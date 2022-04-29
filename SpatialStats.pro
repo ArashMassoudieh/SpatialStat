@@ -9,13 +9,13 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 INCLUDEPATH += Include
-INCLUDEPATH += ../Utility_Classes
+INCLUDEPATH += ../Utilities
 
 CONFIG(debug, debug|release) {
     message(Building in debug mode)
     #QMAKE_CXXFLAGS+= -fopenmp
     #QMAKE_LFLAGS +=  -fopenmp
-    ! macx: LIBS += -lgomp -lpthread
+    ! macx: LIBS += -lgomp -lpthread -lgsl
     macx: LIBS += -lpthread
     DEFINES += NO_OPENMP DEBUG
 
@@ -27,13 +27,13 @@ CONFIG(debug, debug|release) {
     # QMAKE_CXXFLAGS+=-pg
     # QMAKE_LFLAGS+=-pg
     macx: DEFINES += NO_OPENMP
-    ! macx: LIBS += -lgomp -lpthread
+    ! macx: LIBS += -lgomp -lpthread -lgsl
     macx: LIBS += -lpthread
 }
 
 
 SOURCES += \
-    ../Utilities/DistributionNUnif.cpp \
+    ../Utilities/Distribution.cpp \
     ../Utilities/Matrix.cpp \
     ../Utilities/Matrix_arma.cpp \
     ../Utilities/NormalDist.cpp \
@@ -52,7 +52,7 @@ SOURCES += \
 HEADERS += \
     ../Utilities/BTC.h \
     ../Utilities/BTCSet.h \
-    ../Utilities/DistributionNUnif.h \
+    ../Utilities/Distribution.h \
     ../Utilities/Matrix.h \
     ../Utilities/Matrix_arma.h \
     ../Utilities/NormalDist.h \

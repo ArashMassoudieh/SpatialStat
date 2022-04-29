@@ -1,7 +1,7 @@
 #include "grid.h"
 #include "Utilities.h"
 
-vector<string> list_of_commands = vector<string>({"CreateGrid"});
+vector<string> Grid::list_of_commands = vector<string>({"CreateGrid"});
 
 Grid::Grid():Interface()
 {
@@ -11,9 +11,9 @@ Grid::Grid():Interface()
 bool Grid::CreateGrid(const map<string,string> &Arguments)
 {
     GeometricParameters.nx = atoi(Arguments.at("nx").c_str());
-    GeometricParameters.nx = atoi(Arguments.at("ny").c_str());
-    GeometricParameters.nx = atof(Arguments.at("dx").c_str());
-    GeometricParameters.ny = atof(Arguments.at("dy").c_str());
+    GeometricParameters.ny = atoi(Arguments.at("ny").c_str());
+    GeometricParameters.dx = atof(Arguments.at("dx").c_str());
+    GeometricParameters.dy = atof(Arguments.at("dy").c_str());
     p.resize(GeometricParameters.nx);
     for (int i = 0; i < GeometricParameters.nx; i++)
     {
@@ -35,8 +35,8 @@ vector<string> Grid::commands()
 
 vector<string> Grid::Commands()
 {
-    return vector<string>();
-    //return list_of_commands;
+    //return vector<string>();
+    return list_of_commands;
 }
 
 bool Grid::HasCommand(const string &cmd)

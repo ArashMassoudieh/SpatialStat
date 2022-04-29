@@ -16,10 +16,11 @@ public:
     static bool HasCommand(const string &cmd);
     vector<string> commands();
     static vector<string> Commands();
+    static vector<string> list_of_commands;
 private:
     geometrical_parameters GeometricParameters;
     vector<vector<distributed_property> > p;
-    static vector<string> list_of_commands;
+
 
 };
 

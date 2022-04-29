@@ -25,8 +25,9 @@ public:
     string command;
     string object_name;
     static vector<char> deliminators;
-    command_type CommadType;
-    static map<string,command_parameters> Commands_Structure;
+    static map<string,command_parameters> Command_Structures;
+    bool Command_Structures_Initialized = false;
+    void Initialize_Command_Structure();
 
 };
 
