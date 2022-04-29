@@ -2,7 +2,7 @@
 #include "vector"
 #include "Utilities.h"
 
-vector<char> Command::deliminators = vector<char>({'=', '(', ')', ','});
+vector<char> Command::deliminators = vector<char>({'=', '(', ')', ',','*'});
 map<string,command_parameters> Command::Command_Structures = map<string,command_parameters>();
 
 Command::Command()
@@ -45,11 +45,31 @@ Command::Command(const string &cmdline)
     }
 }
 
+Command Command::operator = (const Command &C)
+{
+    arguments = C.arguments;
+    command = C.command;
+    return *this;
+}
+
+
+Command::~Command(void)
+{
+
+}
+
+Command::Command(const Command &C)
+{
+    arguments = C.arguments;
+    command = C.command;
+}
+
 void Command::Initialize_Command_Structure()
 {
     command_parameters cmd;
     Command_Structures["CreateGrid"].CommandType = command_type::creator; Command_Structures["CreateGrid"].Object = "Grid"; Command_Structures["CreateGrid"].Output = "Grid";
     Command_Structures["CreateDistribution"].CommandType = command_type::creator; Command_Structures["CreateDistribution"].Object = "Distribution"; Command_Structures["CreateDistribution"].Output = "Distribution";
+    Command_Structures["WriteToFile"].CommandType = command_type::modifier; Command_Structures["WriteToFile"].Object = "Distribution"; Command_Structures["WriteToFile"].Output = "";
     Command_Structures_Initialized = true;
 }
 

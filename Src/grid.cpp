@@ -46,3 +46,10 @@ bool Grid::HasCommand(const string &cmd)
     else
         return false;
 }
+
+bool Grid::Execute(const string &cmd, const map<string,string> &arguments)
+{
+    if (cmd=="CreateGrid")
+        return CreateGrid(arguments);
+    return false;
+}

@@ -17,6 +17,10 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_test()
 {
-    Command cmd("grid=CreateGrid(nx:100,ny:100,dx:0.01,dy:0.01)");
-    environment.Execute(cmd);
+    Command cmd = Command("grid=CreateGrid(nx:100,ny:100,dx:0.01,dy:0.01)");
+    //environment.Execute(cmd);
+    cmd = Command("dist=CreateDistribution(type:lognormal,p0:0,p1:1)");
+    //environment.Execute(cmd1);
+    cmd = Command("dist*WriteToFile(filename:test.txt,nbins:50");
+    //environment.Execute(cmd2);
 }

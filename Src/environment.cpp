@@ -16,7 +16,12 @@ bool Environment::Execute(const Command &cmd)
         if (cmd.Command_Structures[cmd.command].CommandType == command_type::creator)
         {
             Objects[cmd.object_name]=new Grid();
-            dynamic_cast<Grid*>(Objects[cmd.object_name])->CreateGrid(cmd.arguments);
+            dynamic_cast<Grid*>(Objects[cmd.object_name])->Execute(cmd.command, cmd.arguments);
+            return true;
+        }
+        if (cmd.Command_Structures[cmd.command].CommandType == command_type::modifier)
+        {
+            dynamic_cast<Grid*>(Objects[cmd.object_name])->Execute(cmd.command, cmd.arguments);
             return true;
         }
     }
@@ -24,8 +29,13 @@ bool Environment::Execute(const Command &cmd)
     {
         if (cmd.Command_Structures[cmd.command].CommandType == command_type::creator)
         {
-            Objects[cmd.object_name]=new Grid();
-            dynamic_cast<Grid*>(Objects[cmd.object_name])->CreateGrid(cmd.arguments);
+            Objects[cmd.object_name]=new CDistribution();
+            dynamic_cast<CDistribution*>(Objects[cmd.object_name])->Execute(cmd.command,cmd.arguments);
+            return true;
+        }
+        if (cmd.Command_Structures[cmd.command].CommandType == command_type::modifier)
+        {
+            dynamic_cast<CDistribution*>(Objects[cmd.object_name])->Execute(cmd.command, cmd.arguments);
             return true;
         }
     }

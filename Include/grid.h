@@ -17,6 +17,7 @@ public:
     vector<string> commands();
     static vector<string> Commands();
     static vector<string> list_of_commands;
+    bool Execute(const string &cmd, const map<string,string> &arguments);
 private:
     geometrical_parameters GeometricParameters;
     vector<vector<distributed_property> > p;

@@ -21,6 +21,9 @@ class Command
 public:
     Command();
     Command(const string &s);
+    Command operator = (const Command &C);
+    Command(const Command &C);
+    ~Command();
     map<string,string> arguments;
     string command;
     string object_name;
