@@ -10,6 +10,7 @@ CONFIG += c++17
 
 INCLUDEPATH += Include
 INCLUDEPATH += ../Utilities
+DEFINES += arma
 
 CONFIG(debug, debug|release) {
     message(Building in debug mode)
