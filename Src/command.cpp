@@ -70,6 +70,8 @@ void Command::Initialize_Command_Structure()
     Command_Structures["CreateGrid"].CommandType = command_type::creator; Command_Structures["CreateGrid"].Object = "Grid"; Command_Structures["CreateGrid"].Output = "Grid";
     Command_Structures["CreateDistribution"].CommandType = command_type::creator; Command_Structures["CreateDistribution"].Object = "Distribution"; Command_Structures["CreateDistribution"].Output = "Distribution";
     Command_Structures["WriteToFile"].CommandType = command_type::modifier; Command_Structures["WriteToFile"].Object = "Distribution"; Command_Structures["WriteToFile"].Output = "";
+    Command_Structures["SetInverseCumulative"].CommandType = command_type::modifier; Command_Structures["SetInverseCumulative"].Object = "Distribution"; Command_Structures["WriteToFile"].Output = "";
+    Command_Structures["WriteInverseCumulativeToFile"].CommandType = command_type::modifier; Command_Structures["WriteInverseCumulativeToFile"].Object = "Distribution"; Command_Structures["WriteInverseCumulativeToFile"].Output = "";
     Command_Structures_Initialized = true;
 }
 

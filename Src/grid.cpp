@@ -132,7 +132,7 @@ correl_mat_vec Grid::GetCorrellMatrixVec(int i, int j,field_gen_params *FieldGen
 {
     correl_mat_vec M;
     vector<ijval> ij = GetClosestCells(GetClosestDeteminedCells(i, j, min(FieldGeneratorParameters->n_filled,FieldGeneratorParameters->max_correl_n)+1,FieldGeneratorParameters), min(FieldGeneratorParameters->n_filled, FieldGeneratorParameters->max_correl_n)+1);
-#ifdef  arma
+#ifdef Use_Armadillo
     M.M_22 = CMatrix_arma(ij.size() - 1);
     M.V_21 = CVector_arma(ij.size() - 1);
     M.V_RHS = CVector_arma(ij.size() - 1);
@@ -147,7 +147,7 @@ correl_mat_vec Grid::GetCorrellMatrixVec(int i, int j,field_gen_params *FieldGen
         M.V_RHS[ii - 1] = p[ij[ii].i][ij[ii].j].K_gauss[0];
         for (int jj = 1; jj < int(ij.size()); jj++)
         {
-#ifdef arma
+#ifdef Use_Armadillo
         M.M_22(ii-1,jj-1) = exp(-sqrt((ij[jj].i - ij[ii].i)*GeometricParameters.dx/ FieldGeneratorParameters->k_correlation_lenght_scale_x*(ij[jj].i - ij[ii].i)*GeometricParameters.dx/ FieldGeneratorParameters->k_correlation_lenght_scale_x + (ij[jj].j - ij[ii].j)*GeometricParameters.dy/ FieldGeneratorParameters->k_correlation_lenght_scale_y*(ij[jj].j - ij[ii].j)*GeometricParameters.dy/ FieldGeneratorParameters->k_correlation_lenght_scale_y));
 #else
         M.M_22[ii - 1][jj - 1] = exp(-sqrt((ij[jj].i - ij[ii].i)*GeometricParameters.dx/ FieldGeneratorParameters->k_correlation_lenght_scale_x*(ij[jj].i - ij[ii].i)*GeometricParameters.dx/ FieldGeneratorParameters->k_correlation_lenght_scale_x + (ij[jj].j - ij[ii].j)*GeometricParameters.dy/ FieldGeneratorParameters->k_correlation_lenght_scale_y*(ij[jj].j - ij[ii].j)*GeometricParameters.dy/ FieldGeneratorParameters->k_correlation_lenght_scale_y));

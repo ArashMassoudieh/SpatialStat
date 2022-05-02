@@ -2,7 +2,7 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-CONFIG += c++17
+CONFIG += c++14
 
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -10,7 +10,7 @@ CONFIG += c++17
 
 INCLUDEPATH += Include
 INCLUDEPATH += ../Utilities
-DEFINES += arma
+DEFINES += Use_Armadillo
 
 CONFIG(debug, debug|release) {
     message(Building in debug mode)
@@ -28,7 +28,7 @@ CONFIG(debug, debug|release) {
     # QMAKE_CXXFLAGS+=-pg
     # QMAKE_LFLAGS+=-pg
     macx: DEFINES += NO_OPENMP
-    ! macx: LIBS += -lgomp -lpthread -lgsl
+    ! macx: LIBS += -lgomp -lpthread -lgsl -larmadillo
     macx: LIBS += -lpthread
 }
 
