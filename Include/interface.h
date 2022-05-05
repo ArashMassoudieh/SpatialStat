@@ -7,12 +7,15 @@
 
 enum class object_type {PathwaySet, D2Grid, Distribution};
 
+class Environment;
+
 using namespace std;
 
 class Interface
 {
 public:
-    Interface();
+    Environment *parent;
+    Interface(Environment* _parent = nullptr);
     object_type ObjectType;
     virtual vector<string> commands();
     bool HasCommand(const string &cmd);

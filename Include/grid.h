@@ -51,7 +51,7 @@ public:
     static vector<string> Commands();
     static vector<string> list_of_commands;
     bool Execute(const string &cmd, const map<string,string> &arguments);
-    void CreateRandomKField(map<string,string> Arguments, CDistribution *dist);
+    bool AssignKFieldToGrid(map<string,string> Arguments);
 private:
     geometrical_parameters GeometricParameters;
     vector<vector<distributed_property> > p;

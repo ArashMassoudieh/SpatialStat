@@ -1,9 +1,10 @@
 #include "interface.h"
 #include "Utilities.h"
+#include "environment.h"
 
-Interface::Interface()
+Interface::Interface(Environment *_parent)
 {
-
+    parent = _parent;
 }
 
 bool Interface::HasCommand(const string &cmd)

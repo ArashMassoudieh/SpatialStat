@@ -13,6 +13,14 @@ class Environment
 public:
     Environment();
     map<string, Interface*> Objects;
+    Interface* Object(const string &objectname)
+    {
+        if (Objects.count(objectname)>0)
+            return Objects.at(objectname);
+        else
+            return nullptr;
+
+    }
     bool Execute(const Command &cmd);
 
 };

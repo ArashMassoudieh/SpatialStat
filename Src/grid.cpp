@@ -1,9 +1,10 @@
 #include "grid.h"
 #include "Utilities.h"
 #include "NormalDist.h"
+#include "environment.h"
+#include "Distribution.h"
 
-
-vector<string> Grid::list_of_commands = vector<string>({"CreateGrid"});
+vector<string> Grid::list_of_commands = vector<string>({"CreateGrid","AssignKFieldToGrid"});
 
 Grid::Grid():Interface()
 {
@@ -53,15 +54,22 @@ bool Grid::Execute(const string &cmd, const map<string,string> &arguments)
 {
     if (cmd=="CreateGrid")
         return CreateGrid(arguments);
+    if (cmd==)
     return false;
 }
 
-void Grid::CreateRandomKField(map<string,string> Arguments, CDistribution *dist)
+bool Grid::AssignKFieldToGrid(map<string,string> Arguments)
 {
+    if (!parent->Object(Arguments["Distribution"]))
+        return false;
+
+    CDistribution* dist = dynamic_cast<CDistribution*>(parent->Object(Arguments["Distribution"]));
     Clear();
     int n_filled = 0;
     field_gen_params Field_Generator_Parameters;
     Field_Generator_Parameters.inversecdf = dist->inverse_cumulative;
+    Field_Generator_Parameters.k_correlation_lenght_scale_x = aquiutils::atof(Arguments["correlation_length_x"]);
+    Field_Generator_Parameters.k_correlation_lenght_scale_y = aquiutils::atof(Arguments["correlation_length_y"]);
     srand(time(NULL));
     while (n_filled<GeometricParameters.nx*GeometricParameters.ny)
     {
