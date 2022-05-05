@@ -61,7 +61,7 @@ void Grid::CreateRandomKField(map<string,string> Arguments, CDistribution *dist)
     Clear();
     int n_filled = 0;
     field_gen_params Field_Generator_Parameters;
-    Field_Generator_Parameters.inversecdf = dist->InverseCumulative;
+    Field_Generator_Parameters.inversecdf = dist->inverse_cumulative;
     srand(time(NULL));
     while (n_filled<GeometricParameters.nx*GeometricParameters.ny)
     {

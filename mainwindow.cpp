@@ -25,5 +25,6 @@ void MainWindow::on_test()
     environment.Execute(cmd);
     cmd = Command("dist*SetInverseCumulative(ninc:1000)");
     environment.Execute(cmd);
-    cmd = Command("dist*WriteInverseCumulativeToFile(filename=inversecumulative.txt)");
+    cmd = Command("dist*WriteInverseCumulativeToFile(filename:inversecumulative.txt)");
+    environment.Execute(cmd);
 }

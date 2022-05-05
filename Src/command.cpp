@@ -49,6 +49,7 @@ Command Command::operator = (const Command &C)
 {
     arguments = C.arguments;
     command = C.command;
+    object_name = C.object_name;
     return *this;
 }
 
@@ -62,6 +63,7 @@ Command::Command(const Command &C)
 {
     arguments = C.arguments;
     command = C.command;
+    object_name = C.object_name;
 }
 
 void Command::Initialize_Command_Structure()
