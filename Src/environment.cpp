@@ -16,6 +16,7 @@ bool Environment::Execute(const Command &cmd)
         if (cmd.Command_Structures[cmd.command].CommandType == command_type::creator)
         {
             Objects[cmd.object_name]=new Grid();
+            Objects[cmd.object_name]->parent = this;
             dynamic_cast<Grid*>(Objects[cmd.object_name])->Execute(cmd.command, cmd.arguments);
             return true;
         }
@@ -30,6 +31,7 @@ bool Environment::Execute(const Command &cmd)
         if (cmd.Command_Structures[cmd.command].CommandType == command_type::creator)
         {
             Objects[cmd.object_name]=new CDistribution();
+            Objects[cmd.object_name]->parent = this;
             dynamic_cast<CDistribution*>(Objects[cmd.object_name])->Execute(cmd.command,cmd.arguments);
             return true;
         }

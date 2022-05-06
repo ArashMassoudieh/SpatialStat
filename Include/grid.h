@@ -34,7 +34,7 @@ struct ijval
 
 struct field_gen_params
 {
-    int max_correl_n;
+    int max_correl_n = 10;
     double k_correlation_lenght_scale_x;
     double k_correlation_lenght_scale_y;
     int n_filled=0;

@@ -27,4 +27,6 @@ void MainWindow::on_test()
     environment.Execute(cmd);
     cmd = Command("dist*WriteInverseCumulativeToFile(filename:inversecumulative.txt)");
     environment.Execute(cmd);
+    cmd = Command("grid*AssignKField(Distribution:dist,correlation_length_x:0.2,correlation_length_y:0.2,Maximum_neighboring_nodes:11)");
+    environment.Execute(cmd);
 }

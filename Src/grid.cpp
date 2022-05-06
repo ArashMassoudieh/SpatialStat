@@ -4,7 +4,7 @@
 #include "environment.h"
 #include "Distribution.h"
 
-vector<string> Grid::list_of_commands = vector<string>({"CreateGrid","AssignKFieldToGrid"});
+vector<string> Grid::list_of_commands = vector<string>({"CreateGrid","AssignKField"});
 
 Grid::Grid():Interface()
 {
@@ -54,7 +54,8 @@ bool Grid::Execute(const string &cmd, const map<string,string> &arguments)
 {
     if (cmd=="CreateGrid")
         return CreateGrid(arguments);
-    if (cmd==)
+    if (cmd=="AssignKField")
+        return AssignKFieldToGrid(arguments);
     return false;
 }
 
@@ -63,10 +64,16 @@ bool Grid::AssignKFieldToGrid(map<string,string> Arguments)
     if (!parent->Object(Arguments["Distribution"]))
         return false;
 
+
+
     CDistribution* dist = dynamic_cast<CDistribution*>(parent->Object(Arguments["Distribution"]));
     Clear();
     int n_filled = 0;
     field_gen_params Field_Generator_Parameters;
+    if (Arguments.count("Maximum_neighboring_nodes")>0)
+    {
+        Field_Generator_Parameters.max_correl_n = aquiutils::atof(Arguments.at("Maximum_neighboring_nodes"));
+    }
     Field_Generator_Parameters.inversecdf = dist->inverse_cumulative;
     Field_Generator_Parameters.k_correlation_lenght_scale_x = aquiutils::atof(Arguments["correlation_length_x"]);
     Field_Generator_Parameters.k_correlation_lenght_scale_y = aquiutils::atof(Arguments["correlation_length_y"]);
@@ -84,6 +91,7 @@ bool Grid::AssignKFieldToGrid(map<string,string> Arguments)
         }
     }
     cout<<endl;
+    return true;
 
 }
 
@@ -116,9 +124,9 @@ void Grid::AssignNewK(int i, int j, field_gen_params *FieldGeneratorParameters)
     }
     else
     {
-            CMatrix_arma M_inv = inv(M.M_22);
-            mu = dotproduct(M_inv*M.V_21, M.V_RHS);
-            sigma = 1.0 - dotproduct(M_inv*M.V_21, M.V_21);
+        CMatrix_arma M_inv = inv(M.M_22);
+        mu = dotproduct(M_inv*M.V_21, M.V_RHS);
+        sigma = 1.0 - dotproduct(M_inv*M.V_21, M.V_21);
     }
 
     double K_gauss = getnormalrand(mu, sigma);
