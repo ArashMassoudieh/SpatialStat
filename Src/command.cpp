@@ -75,6 +75,10 @@ void Command::Initialize_Command_Structure()
     Command_Structures["SetInverseCumulative"].CommandType = command_type::modifier; Command_Structures["SetInverseCumulative"].Object = "Distribution"; Command_Structures["WriteToFile"].Output = "";
     Command_Structures["WriteInverseCumulativeToFile"].CommandType = command_type::modifier; Command_Structures["WriteInverseCumulativeToFile"].Object = "Distribution"; Command_Structures["WriteInverseCumulativeToFile"].Output = "";
     Command_Structures["AssignKField"].CommandType = command_type::modifier; Command_Structures["AssignKField"].Object = "Grid"; Command_Structures["AssignKField"].Output = "";
+    Command_Structures["WriteKFieldToVTP"].CommandType = command_type::modifier; Command_Structures["WriteKFieldToVTP"].Object = "Grid"; Command_Structures["WriteKFieldToVTP"].Output = "";
+    Command_Structures["RenormalizeKField"].CommandType = command_type::modifier; Command_Structures["RenormalizeKField"].Object = "Grid"; Command_Structures["RenormalizeKField"].Output = "";
+    Command_Structures["SolveHydro"].CommandType = command_type::modifier; Command_Structures["SolveHydro"].Object = "Grid"; Command_Structures["SolveHydro"].Output = "";
+
     Command_Structures_Initialized = true;
 }
 

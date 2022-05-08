@@ -27,6 +27,14 @@ void MainWindow::on_test()
     environment.Execute(cmd);
     cmd = Command("dist*WriteInverseCumulativeToFile(filename:inversecumulative.txt)");
     environment.Execute(cmd);
-    cmd = Command("grid*AssignKField(Distribution:dist,correlation_length_x:0.2,correlation_length_y:0.2,Maximum_neighboring_nodes:11)");
+    cmd = Command("grid*AssignKField(Distribution:dist,correlation_length_x:0.5,correlation_length_y:0.5,Maximum_neighboring_nodes:11)");
     environment.Execute(cmd);
+    cmd = Command("grid*RenormalizeKField(Distribution:dist");
+    environment.Execute(cmd);
+    cmd = Command("grid*WriteKFieldToVTP(filename:K_field.vtp,z_scale:0.1,log_scale:0");
+    environment.Execute(cmd);
+    cmd = Command("grid*SolveHydro(l_boundary:1,r_boundary=0");
+    environment.Execute(cmd);
+
+
 }
