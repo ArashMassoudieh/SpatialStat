@@ -8,7 +8,12 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     connect(ui->actionRun_Sample_Script,SIGNAL(triggered()),this,SLOT(on_test()));
-    environment.outputwindow = ui->listWidget;
+    ui->tableWidget->setColumnCount(3);
+    ui->tableWidget->setRowCount(0);
+    ui->tableWidget->setHorizontalHeaderItem(0,new QTableWidgetItem(QString("Command")));
+    ui->tableWidget->setHorizontalHeaderItem(1,new QTableWidgetItem(QString("Parameters")));
+    ui->tableWidget->setHorizontalHeaderItem(2,new QTableWidgetItem(QString("Progress")));
+    environment.outputwindow = ui->tableWidget;
 }
 
 MainWindow::~MainWindow()

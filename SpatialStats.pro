@@ -185,6 +185,7 @@ CONFIG(debug, debug|release) {
 
 
 SOURCES += \
+    ../Utilities/Concentrations.cpp \
     ../Utilities/Distribution.cpp \
     ../Utilities/Matrix.cpp \
     ../Utilities/Matrix_arma.cpp \
@@ -205,6 +206,7 @@ SOURCES += \
 HEADERS += \
     ../Utilities/BTC.h \
     ../Utilities/BTCSet.h \
+    ../Utilities/Concentrations.h \
     ../Utilities/Distribution.h \
     ../Utilities/Matrix.h \
     ../Utilities/Matrix_arma.h \

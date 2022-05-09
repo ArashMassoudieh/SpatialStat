@@ -8,6 +8,7 @@
 enum class object_type {PathwaySet, D2Grid, Distribution};
 
 class Environment;
+class QTableWidget;
 
 using namespace std;
 
@@ -20,6 +21,9 @@ public:
     virtual vector<string> commands();
     bool HasCommand(const string &cmd);
     virtual bool Execute(const string &cmd, const map<string,string> &arguments)=0;
+    QTableWidget *outputwindow();
+    void SetProgressValue(const double &x);
+
 
 };
 

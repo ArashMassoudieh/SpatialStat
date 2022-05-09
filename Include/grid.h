@@ -14,34 +14,7 @@
 
 using namespace std;
 
-struct correl_mat_vec
-{
-#ifdef Use_Armadillo
-    CMatrix_arma M_22;
-    CVector_arma V_21;
-    CVector_arma V_RHS;
-#else
-    CMatrix M_22;
-    CVector V_21;
-    CVector V_RHS;
-#endif //  arma
-};
 
-struct ijval
-{
-    int i;
-    int j;
-    double val;
-};
-
-struct field_gen_params
-{
-    int max_correl_n = 10;
-    double k_correlation_lenght_scale_x;
-    double k_correlation_lenght_scale_y;
-    int n_filled=0;
-    CTimeSeries<double> inversecdf;
-};
 
 class Grid : public Interface
 {
@@ -66,7 +39,7 @@ public:
     bool WriteHydroSolutionToVTP(const string &filename="solution.vtp", const double &z_factor=0.5, bool _log = false);
     bool SolveHydro(const double &leftboundary=0, const double &rightboundary=1);
     void SetProgressValue(const double &s);
-
+    transportparameters TransportParameters;
 private:
     geometrical_parameters GeometricParameters;
     vector<vector<distributed_property> > p;
@@ -89,6 +62,10 @@ private:
     CMatrix vy;
     CVector CreateRHSHydro(const double &leftboundary, const double &rightboundary);
     CVector_arma CreateRHSHydro_ARMA(const double &leftboundary, const double &rightboundary);
+    void SolveTransport(const double &t_end, const vector<double> &decay_coeff, const vector<double> &decay_order);
+    void CreateTransportKMatrix(const double &dt, const double &D, const double &weight);
+    CVector_arma CreateTransportRHS(int species_counter, const double &dt, const double &weight, const double &D, const double &decay_coefficient, const double &decay_order);
+    vector<CMatrix> C;
 
 };
 vector<ijval> GetClosestCells(vector<ijval> vec, int n);

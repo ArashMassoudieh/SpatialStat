@@ -19,3 +19,13 @@ vector<string> Interface::commands()
 {
     return vector<string>();
 }
+
+QTableWidget *Interface::outputwindow()
+{
+    return parent->outputwindow;
+}
+
+void Interface::SetProgressValue(const double &x)
+{
+
+}

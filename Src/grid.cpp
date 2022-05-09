@@ -913,4 +913,172 @@ bool Grid::WriteHydroSolutionToVTP(const string &filename, const double &z_facto
 
 }
 
+void Grid::SolveTransport(const double &t_end, const vector<double> &decay_coeff, const vector<double> &decay_order)
+{
+    CreateTransportKMatrix(TransportParameters.dt, TransportParameters.D, TransportParameters.time_weight);
+    C.resize(TransportParameters.numberofspecies);
+    for (int species_counter=0; species_counter<TransportParameters.numberofspecies; species_counter++)
+    {
+        C[species_counter] = CMatrix(GeometricParameters.nx + 1, GeometricParameters.ny + 1);// = leftboundary_C;
+    }
+    for (int i = 0; i < GeometricParameters.nx; i++)
+        for (int j = 0; j < GeometricParameters.ny; j++)
+            p[i][j].C.resize(int(t_end/TransportParameters.dt), TransportParameters.numberofspecies);
+    CMatrix_arma_sp K = TransportParameters.KD + TransportParameters.Kt + TransportParameters.Kv;
+    //Kt.writetofile(pathout + "Kt_matrix.txt");
+    //KD.writetofile(pathout + "KD_matrix.txt");
+    //Kv.writetofile(pathout + "Kv_matrix.txt");
+    //K.writetofile(pathout + "transport_matrix.txt");
+    SetProgressValue(0);
+        int counter=0;
+        for (double t = 0; t < t_end; t += TransportParameters.dt)
+        {
+            for (int species_counter=0; species_counter<TransportParameters.numberofspecies; species_counter++)
+            {   CVector_arma RHS = CreateTransportRHS(species_counter, TransportParameters.dt, TransportParameters.time_weight, TransportParameters.D, decay_coeff[species_counter], decay_order[species_counter]);
+                CVector_arma S = solve_ar(K, RHS);
+
+                for (int i=0; i<GeometricParameters.nx+1; i++)
+                    for (int j=0; j<GeometricParameters.ny+1; j++)
+                        C[species_counter][i][j] = S[get_cell_no(i, j)];
+            }
+            for (int i = 0; i < GeometricParameters.nx; i++)
+                for (int j = 0; j < GeometricParameters.ny; j++)
+                {
+                    vector<double> cc;
+                    for (int species_counter = 0; species_counter<TransportParameters.numberofspecies; species_counter++)
+                        p[i][j].C.setvalue(counter,species_counter,C[species_counter][i+1][j]);
+                }
+            counter++;
+            SetProgressValue(t / t_end);
+
+        }
+        cout<<endl;
+}
+
+void Grid::CreateTransportKMatrix(const double &dt, const double &D, const double &weight)
+{
+    string averaging = "arithmetic";
+    TransportParameters.Kv = CMatrix_arma_sp((GeometricParameters.nx + 1)*(GeometricParameters.ny + 1), (GeometricParameters.nx + 1)*(GeometricParameters.ny + 1));
+    TransportParameters.KD = CMatrix_arma_sp((GeometricParameters.nx + 1)*(GeometricParameters.ny + 1), (GeometricParameters.nx + 1)*(GeometricParameters.ny + 1));
+    TransportParameters.Kt = CMatrix_arma_sp((GeometricParameters.nx + 1)*(GeometricParameters.ny + 1), (GeometricParameters.nx + 1)*(GeometricParameters.ny + 1));
+
+    for (int i = 1; i < GeometricParameters.nx; i++)
+    {
+        for (int j = 1; j < GeometricParameters.ny; j++)
+        {
+            TransportParameters.Kv.matr(get_cell_no(i, j), get_cell_no(i - 1, j)) += -weight*aquiutils::Pos(vx[i-1][j-1]) / (GeometricParameters.dx);
+            TransportParameters.Kv.matr(get_cell_no(i, j), get_cell_no(i, j)) += weight*(aquiutils::Neg(vx[i-1][j-1])/GeometricParameters.dx + aquiutils::Pos(vx[i][j-1])/GeometricParameters.dx);
+            TransportParameters.Kv.matr(get_cell_no(i, j), get_cell_no(i + 1, j)) += -weight*aquiutils::Neg(vx[i][j - 1]) / (GeometricParameters.dx);
+
+            TransportParameters.Kv.matr(get_cell_no(i, j), get_cell_no(i, j-1)) += -weight*aquiutils::Pos(vy[i - 1][j - 1]) / GeometricParameters.dy;
+            TransportParameters.Kv.matr(get_cell_no(i, j), get_cell_no(i, j)) += weight*(aquiutils::Neg(vy[i - 1][j - 1]) / GeometricParameters.dy + aquiutils::Pos(vy[i-1][j]) / GeometricParameters.dy);
+            TransportParameters.Kv.matr(get_cell_no(i, j), get_cell_no(i, j+1)) += -weight*aquiutils::Neg(vy[i-1][j]) / GeometricParameters.dy;
+
+            TransportParameters.KD.matr(get_cell_no(i, j), get_cell_no(i - 1, j)) += -weight*D / (GeometricParameters.dx*GeometricParameters.dx);
+            TransportParameters.KD.matr(get_cell_no(i, j), get_cell_no(i, j)) += 2*weight*D / (GeometricParameters.dx*GeometricParameters.dx);
+            TransportParameters.KD.matr(get_cell_no(i, j), get_cell_no(i + 1, j)) += -weight*D / (GeometricParameters.dx*GeometricParameters.dx);
+
+            TransportParameters.KD.matr(get_cell_no(i, j), get_cell_no(i, j-1)) += -weight*D / (GeometricParameters.dy*GeometricParameters.dy);
+            TransportParameters.KD.matr(get_cell_no(i, j), get_cell_no(i, j)) += 2*weight*D / (GeometricParameters.dy*GeometricParameters.dy);
+            TransportParameters.KD.matr(get_cell_no(i, j), get_cell_no(i, j+1)) += -weight*D / (GeometricParameters.dy*GeometricParameters.dy);
+
+            TransportParameters.Kt.matr(get_cell_no(i, j), get_cell_no(i, j)) += 1.0 / dt;
+
+        }
+        // top boundary
+        int j = GeometricParameters.ny;
+        TransportParameters.Kt.matr(get_cell_no(i, j), get_cell_no(i, j - 1)) = 1;
+        TransportParameters.Kt.matr(get_cell_no(i, j), get_cell_no(i, j)) = -1;
+
+        // bottom boundary
+        j = 0;
+        TransportParameters.Kt.matr(get_cell_no(i, j), get_cell_no(i, j + 1)) = 1;
+        TransportParameters.Kt.matr(get_cell_no(i, j), get_cell_no(i, j)) = -1;
+    }
+
+    //left boundary
+    int i = 0;
+    for (int j = 0; j < GeometricParameters.ny + 1; j++)
+    {
+        TransportParameters.Kt.matr(get_cell_no(i, j), get_cell_no(i, j)) = 1;
+        TransportParameters.Kt.matr(get_cell_no(i, j), get_cell_no(i + 1, j)) = 1;
+    }
+
+    //right boundary
+    i = GeometricParameters.nx;
+    for (int j = 0; j < GeometricParameters.ny + 1; j++)
+    {
+        TransportParameters.Kt.matr(get_cell_no(i, j), get_cell_no(i, j)) = 1;
+        TransportParameters.Kt.matr(get_cell_no(i, j), get_cell_no(i - 1, j)) = -1;
+    }
+
+
+}
+
+CVector_arma Grid::CreateTransportRHS(int species_counter, const double &dt, const double &weight, const double &D, const double &decay_coefficient, const double &decay_order)
+{
+    CVector_arma RHS((GeometricParameters.nx + 1)*(GeometricParameters.ny + 1));
+    for (int i = 1; i < GeometricParameters.nx; i++)
+    {
+        for (int j = 1; j < GeometricParameters.ny; j++)
+        {
+            double rhs = 0;
+            rhs += (1-weight)*aquiutils::Pos(vx[i - 1][j - 1]) / (GeometricParameters.dx)*C[species_counter][i-1][j];
+            rhs += -(1-weight)*(aquiutils::Neg(vx[i - 1][j - 1]) / GeometricParameters.dx + aquiutils::Pos(vx[i][j-1]) / GeometricParameters.dx)*C[species_counter][i][j];
+            rhs += (1-weight)*aquiutils::Neg(vx[i][j - 1]) / (GeometricParameters.dx)*C[species_counter][i+1][j];
+
+            rhs += (1-weight)*aquiutils::Pos(vy[i - 1][j - 1]) / GeometricParameters.dy*C[species_counter][i][j-1];
+            rhs += -(1 - weight)*(aquiutils::Neg(vy[i - 1][j - 1]) / GeometricParameters.dy + aquiutils::Pos(vy[i - 1][j]) / GeometricParameters.dy)*C[species_counter][i][j];
+            rhs += (1-weight)*aquiutils::Neg(vy[i - 1][j]) / GeometricParameters.dy*C[species_counter][i][j+1];
+
+            rhs += (1-weight)*D / (GeometricParameters.dx*GeometricParameters.dx)*C[species_counter][i-1][j];
+            rhs += -2 * (1-weight)*D / (GeometricParameters.dx*GeometricParameters.dx)*C[species_counter][i][j];
+            rhs += (1-weight)*D / (GeometricParameters.dx*GeometricParameters.dx)*C[species_counter][i + 1][j];
+
+            rhs += (1-weight)*D / (GeometricParameters.dy*GeometricParameters.dy)*C[species_counter][i][j-1];
+            rhs += -2 * (1-weight)*D / (GeometricParameters.dy*GeometricParameters.dy)*C[species_counter][i][j];
+            rhs += (1-weight)*D / (GeometricParameters.dy*GeometricParameters.dy)*C[species_counter][i][j+1];
+
+            if (TransportParameters.numberofspecies==1)
+                rhs += 1.0 / dt*C[species_counter][i][j] - decay_coefficient*pow(C[species_counter][i][j], decay_order);
+            else if (TransportParameters.numberofspecies==2)
+                rhs += 1.0 / dt*C[species_counter][i][j] - decay_coefficient*C[0][i][j]*C[1][i][j];
+            else if (TransportParameters.numberofspecies==3)
+            {
+                if (species_counter<2)
+                {
+                    rhs += 1.0 / dt*C[species_counter][i][j] - decay_coefficient*C[0][i][j]*C[1][i][j];
+                }
+                else
+                    rhs += 1.0 / dt*C[species_counter][i][j] + decay_coefficient*C[0][i][j]*C[1][i][j];
+            }
+            RHS[get_cell_no(i, j)] = rhs;
+        }
+        // top boundary
+        int j = GeometricParameters.ny;
+        RHS[get_cell_no(i, j)] = 0;
+
+
+        // bottom boundary
+        j = 0;
+        RHS[get_cell_no(i, j)] = 0;
+
+    }
+
+    //left boundary
+    int i = 0;
+    for (int j = 0; j < GeometricParameters.ny + 1; j++)
+        RHS[get_cell_no(i, j)] = 2*TransportParameters.leftboundary_C[species_counter];
+
+
+    //right boundary
+    i = GeometricParameters.nx;
+    for (int j = 0; j < GeometricParameters.ny + 1; j++)
+        RHS[get_cell_no(i, j)] = 0;
+
+    return RHS;
+
+}
+
+
 

@@ -2,9 +2,11 @@
 #include "interface.h"
 #include "grid.h"
 #include "Distribution.h"
+#include <QTableWidget>
+#include <QCoreApplication>
 
 
-Environment::Environment(QListWidget *_outputwindow)
+Environment::Environment(QTableWidget *_outputwindow)
 {
     outputwindow = _outputwindow;
 }
@@ -14,7 +16,11 @@ bool Environment::Execute(const Command &cmd)
 {
     if (outputwindow)
     {
-        outputwindow->addItem(QString::fromStdString(cmd.object_name + "." + cmd.command));
+        QTableWidgetItem *newItem = new QTableWidgetItem(QString::fromStdString(cmd.object_name + "." + cmd.command));
+        outputwindow->insertRow(outputwindow->rowCount());
+        outputwindow->setItem(outputwindow->rowCount()-1, 0, newItem);
+        outputwindow->update();
+        QCoreApplication::processEvents();
     }
     if (Grid::HasCommand(cmd.command))
     {
