@@ -35,6 +35,7 @@ void MainWindow::on_test()
     environment.Execute(cmd);
     cmd = Command("grid*SolveHydro(l_boundary:1,r_boundary=0");
     environment.Execute(cmd);
-
+    cmd = Command("grid*WriteHydroSolutionToVTP(filename:hydro_solution.vtp,z_scale:0.1,log_scale:0");
+    environment.Execute(cmd);
 
 }

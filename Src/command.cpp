@@ -78,7 +78,7 @@ void Command::Initialize_Command_Structure()
     Command_Structures["WriteKFieldToVTP"].CommandType = command_type::modifier; Command_Structures["WriteKFieldToVTP"].Object = "Grid"; Command_Structures["WriteKFieldToVTP"].Output = "";
     Command_Structures["RenormalizeKField"].CommandType = command_type::modifier; Command_Structures["RenormalizeKField"].Object = "Grid"; Command_Structures["RenormalizeKField"].Output = "";
     Command_Structures["SolveHydro"].CommandType = command_type::modifier; Command_Structures["SolveHydro"].Object = "Grid"; Command_Structures["SolveHydro"].Output = "";
-
+    Command_Structures["WriteHydroSolutionToVTP"].CommandType = command_type::modifier; Command_Structures["WriteHydroSolutionToVTP"].Object = "Grid"; Command_Structures["WriteHydroSolutionToVTP"].Output = "";
     Command_Structures_Initialized = true;
 }
 

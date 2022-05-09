@@ -58,10 +58,12 @@ public:
     void RenormalizeK(CDistribution *dist,int k=0);
     bool WriteKFieldToVTP(const map<string,string> &Arguments);
     bool SolveHydro(const map<string,string> &Arguments);
+    bool WriteHydroSolutionToVTP(const map<string,string> &Arguments);
     CTimeSeries<double> GetKValuesToTimeSeries(int k=0);
     void RemapKFieldBasedonMarginalDistribution(CDistribution *dist,int k=0);
     double MapToMarginalDistribution(const double &u, CDistribution *dist);
     bool WriteKFieldToVTP(const string &filename="surface.vtp", const double &z_factor=0.5, bool _log = false);
+    bool WriteHydroSolutionToVTP(const string &filename="solution.vtp", const double &z_factor=0.5, bool _log = false);
     bool SolveHydro(const double &leftboundary=0, const double &rightboundary=1);
     void SetProgressValue(const double &s);
 
