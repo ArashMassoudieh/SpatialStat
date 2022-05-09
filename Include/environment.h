@@ -5,13 +5,15 @@
 #include <map>
 #include <interface.h>
 #include "command.h"
+#include <QListWidget>
 
 using namespace std;
 
 class Environment
 {
 public:
-    Environment();
+    QListWidget *outputwindow = nullptr;
+    Environment(QListWidget *outputwindow = nullptr);
     map<string, Interface*> Objects;
     Interface* Object(const string &objectname)
     {

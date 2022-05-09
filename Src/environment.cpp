@@ -3,14 +3,19 @@
 #include "grid.h"
 #include "Distribution.h"
 
-Environment::Environment()
-{
 
+Environment::Environment(QListWidget *_outputwindow)
+{
+    outputwindow = _outputwindow;
 }
 
 
 bool Environment::Execute(const Command &cmd)
 {
+    if (outputwindow)
+    {
+        outputwindow->addItem(QString::fromStdString(cmd.object_name + "." + cmd.command));
+    }
     if (Grid::HasCommand(cmd.command))
     {
         if (cmd.Command_Structures[cmd.command].CommandType == command_type::creator)

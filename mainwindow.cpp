@@ -7,7 +7,8 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    connect(ui->pushButtonTest,SIGNAL(clicked()),this,SLOT(on_test()));
+    connect(ui->actionRun_Sample_Script,SIGNAL(triggered()),this,SLOT(on_test()));
+    environment.outputwindow = ui->listWidget;
 }
 
 MainWindow::~MainWindow()

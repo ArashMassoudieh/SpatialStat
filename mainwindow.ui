@@ -16,11 +16,7 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
-     <widget class="QPushButton" name="pushButtonTest">
-      <property name="text">
-       <string>Test</string>
-      </property>
-     </widget>
+     <widget class="QListWidget" name="listWidget"/>
     </item>
    </layout>
   </widget>
@@ -33,8 +29,26 @@
      <height>22</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionRun_Sample_Script"/>
+    <addaction name="actionOpen_Script"/>
+   </widget>
+   <addaction name="menuFile"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionRun_Sample_Script">
+   <property name="text">
+    <string>Run Sample Script</string>
+   </property>
+  </action>
+  <action name="actionOpen_Script">
+   <property name="text">
+    <string>Open Script</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>
