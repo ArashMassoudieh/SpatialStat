@@ -6,7 +6,7 @@
 #include <interface.h>
 #include "command.h"
 #include <QTableWidget>
-
+#include <QProgressBar>
 using namespace std;
 
 class Environment
@@ -24,6 +24,7 @@ public:
 
     }
     bool Execute(const Command &cmd);
+    QProgressBar *current_progress_bar;
 
 };
 
