@@ -26,8 +26,9 @@ public:
     static vector<string> Commands();
     static vector<string> list_of_commands;
     bool Execute(const string &cmd, const map<string,string> &arguments);
-    bool AssignKFieldToGrid(map<string,string> Arguments);
-    bool RenormalizeKField(map<string,string> Arguments);
+    bool AssignKFieldToGrid(const map<string,string> &Arguments);
+    bool RenormalizeKField(const map<string,string> &Arguments);
+    bool SolveTransport(const map<string,string> &Arguments);
     void RenormalizeK(CDistribution *dist,int k=0);
     bool WriteKFieldToVTP(const map<string,string> &Arguments);
     bool SolveHydro(const map<string,string> &Arguments);
@@ -38,7 +39,6 @@ public:
     bool WriteKFieldToVTP(const string &filename="surface.vtp", const double &z_factor=0.5, bool _log = false);
     bool WriteHydroSolutionToVTP(const string &filename="solution.vtp", const double &z_factor=0.5, bool _log = false);
     bool SolveHydro(const double &leftboundary=0, const double &rightboundary=1);
-    void SetProgressValue(const double &s);
     transportparameters TransportParameters;
 private:
     geometrical_parameters GeometricParameters;
@@ -62,12 +62,11 @@ private:
     CMatrix vy;
     CVector CreateRHSHydro(const double &leftboundary, const double &rightboundary);
     CVector_arma CreateRHSHydro_ARMA(const double &leftboundary, const double &rightboundary);
-    void SolveTransport(const double &t_end, const vector<double> &decay_coeff, const vector<double> &decay_order);
+    bool SolveTransport(const double &t_end, const vector<double> &decay_coeff, const vector<double> &decay_order);
     void CreateTransportKMatrix(const double &dt, const double &D, const double &weight);
     CVector_arma CreateTransportRHS(int species_counter, const double &dt, const double &weight, const double &D, const double &decay_coefficient, const double &decay_order);
     vector<CMatrix> C;
 
 };
 vector<ijval> GetClosestCells(vector<ijval> vec, int n);
-void SetProgressValue(double s);
 #endif // GRID_H

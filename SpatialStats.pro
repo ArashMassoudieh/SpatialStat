@@ -178,6 +178,7 @@ CONFIG(debug, debug|release) {
     # QMAKE_CFLAGS+=-pg
     # QMAKE_CXXFLAGS+=-pg
     # QMAKE_LFLAGS+=-pg
+    DEFINES += ARMA_USE_OPENMP
     macx: DEFINES += NO_OPENMP
     ! macx: LIBS += -lgomp -lpthread -lgsl -larmadillo
     macx: LIBS += -lpthread

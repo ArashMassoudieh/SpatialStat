@@ -66,9 +66,9 @@ struct transportparameters
     CMatrix_arma_sp KD;
     CMatrix_arma_sp Kt;
     double dt;
-    double time_weight;
-    double D;
-    int numberofspecies;
+    double time_weight=1;
+    double D=0;
+    int numberofspecies=1;
     vector<double> leftboundary_C;
 
 };

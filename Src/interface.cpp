@@ -1,6 +1,7 @@
 #include "interface.h"
 #include "Utilities.h"
 #include "environment.h"
+#include "QCoreApplication"
 
 Interface::Interface(Environment *_parent)
 {
@@ -27,5 +28,7 @@ QTableWidget *Interface::outputwindow()
 
 void Interface::SetProgressValue(const double &x)
 {
-
+    parent->current_progress_bar->setValue(x);
+    outputwindow()->update();
+    QCoreApplication::processEvents();
 }

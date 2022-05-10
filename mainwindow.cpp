@@ -43,5 +43,8 @@ void MainWindow::on_test()
     environment.Execute(cmd);
     cmd = Command("grid*WriteHydroSolutionToVTP(filename:hydro_solution.vtp,z_scale:0.1,log_scale:0");
     environment.Execute(cmd);
+    cmd = Command("grid*SolveTransport(nspecies:1,decay_coeff:1,decay_order:1,time_weight:1,l_boundary:1,diffusion:0,dt:0.005,t_end:1)");
+    environment.Execute(cmd);
+
 
 }

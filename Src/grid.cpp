@@ -5,7 +5,8 @@
 #include "Distribution.h"
 
 
-vector<string> Grid::list_of_commands = vector<string>({"CreateGrid","AssignKField","WriteKFieldToVTP","RenormalizeKField","SolveHydro","WriteHydroSolutionToVTP"});
+vector<string> Grid::list_of_commands = vector<string>({"CreateGrid","AssignKField","WriteKFieldToVTP","RenormalizeKField","SolveHydro","WriteHydroSolutionToVTP","SolveTransport"\
+                                                       });
 
 Grid::Grid():Interface()
 {
@@ -65,17 +66,19 @@ bool Grid::Execute(const string &cmd, const map<string,string> &arguments)
         return SolveHydro(arguments);
     if (cmd=="WriteHydroSolutionToVTP")
         return WriteHydroSolutionToVTP(arguments);
+    if (cmd=="SolveTransport")
+        return SolveTransport(arguments);
     return false;
 }
 
-bool Grid::AssignKFieldToGrid(map<string,string> Arguments)
+bool Grid::AssignKFieldToGrid(const map<string,string> &Arguments)
 {
-    if (!parent->Object(Arguments["Distribution"]))
+    if (!parent->Object(Arguments.at("Distribution")))
         return false;
 
 
 
-    CDistribution* dist = dynamic_cast<CDistribution*>(parent->Object(Arguments["Distribution"]));
+    CDistribution* dist = dynamic_cast<CDistribution*>(parent->Object(Arguments.at("Distribution")));
     Clear();
 
     field_gen_params Field_Generator_Parameters;
@@ -85,8 +88,8 @@ bool Grid::AssignKFieldToGrid(map<string,string> Arguments)
         Field_Generator_Parameters.max_correl_n = aquiutils::atof(Arguments.at("Maximum_neighboring_nodes"));
     }
     Field_Generator_Parameters.inversecdf = dist->inverse_cumulative;
-    Field_Generator_Parameters.k_correlation_lenght_scale_x = aquiutils::atof(Arguments["correlation_length_x"]);
-    Field_Generator_Parameters.k_correlation_lenght_scale_y = aquiutils::atof(Arguments["correlation_length_y"]);
+    Field_Generator_Parameters.k_correlation_lenght_scale_x = aquiutils::atof(Arguments.at("correlation_length_x"));
+    Field_Generator_Parameters.k_correlation_lenght_scale_y = aquiutils::atof(Arguments.at("correlation_length_y"));
     srand(time(NULL));
     while (Field_Generator_Parameters.n_filled<GeometricParameters.nx*GeometricParameters.ny)
     {
@@ -312,9 +315,9 @@ vector<ijval> GetClosestCells(vector<ijval> vec, int n)
     return out;
 }
 
-bool Grid::RenormalizeKField(map<string,string> Arguments)
+bool Grid::RenormalizeKField(const map<string,string> &Arguments)
 {
-    CDistribution* dist = dynamic_cast<CDistribution*>(parent->Object(Arguments["Distribution"]));
+    CDistribution* dist = dynamic_cast<CDistribution*>(parent->Object(Arguments.at("Distribution")));
     RenormalizeK(dist);
     return true;
 }
@@ -641,14 +644,7 @@ bool Grid::SolveHydro(const double &leftboundary, const double &rightboundary)
     cout<<endl;
 }
 
-void Grid::SetProgressValue(const double &s)
-{
-#ifdef QT_version
-    main_window->get_ui()->progressBar->setValue(s*100);
-    QApplication::processEvents();
-#endif // QT_version
-    cout << "\r Progress: " << s*100 << "%                                     ";
-}
+
 
 CMatrix_arma_sp Grid::CreateStiffnessMatrixHydro()
 {
@@ -913,7 +909,7 @@ bool Grid::WriteHydroSolutionToVTP(const string &filename, const double &z_facto
 
 }
 
-void Grid::SolveTransport(const double &t_end, const vector<double> &decay_coeff, const vector<double> &decay_order)
+bool Grid::SolveTransport(const double &t_end, const vector<double> &decay_coeff, const vector<double> &decay_order)
 {
     CreateTransportKMatrix(TransportParameters.dt, TransportParameters.D, TransportParameters.time_weight);
     C.resize(TransportParameters.numberofspecies);
@@ -952,7 +948,7 @@ void Grid::SolveTransport(const double &t_end, const vector<double> &decay_coeff
             SetProgressValue(t / t_end);
 
         }
-        cout<<endl;
+        return true;
 }
 
 void Grid::CreateTransportKMatrix(const double &dt, const double &D, const double &weight)
@@ -1078,6 +1074,33 @@ CVector_arma Grid::CreateTransportRHS(int species_counter, const double &dt, con
 
     return RHS;
 
+}
+
+bool Grid::SolveTransport(const map<string,string> &Arguments)
+{
+    TransportParameters.numberofspecies=1;
+    if (Arguments.count("nspecies")>0)
+        TransportParameters.numberofspecies = aquiutils::atoi(Arguments.at("nspecies"));
+    vector<double> decay_coeff(TransportParameters.numberofspecies);
+    vector<double> decay_order(TransportParameters.numberofspecies);
+
+    if (Arguments.count("time_weight")>0)
+        TransportParameters.time_weight = aquiutils::atof(Arguments.at("time_weight"));
+    if (Arguments.count("l_boundary")>0)
+        TransportParameters.leftboundary_C = aquiutils::ATOF(aquiutils::split(Arguments.at("l_boundary"),';'));
+    if (Arguments.count("diffusion")>0)
+        TransportParameters.D = aquiutils::atof(Arguments.at("diffusion"));
+    if (Arguments.count("dt")>0)
+        TransportParameters.dt = aquiutils::atof(Arguments.at("dt"));
+    if (Arguments.count("decay_coeff")>0)
+        decay_coeff = aquiutils::ATOF(aquiutils::split(Arguments.at("decay_coeff"),';'));
+    if (Arguments.count("decay_order")>0)
+        decay_order = aquiutils::ATOF(aquiutils::split(Arguments.at("decay_order"),';'));
+    double t_end = 1;
+    if (Arguments.count("t_end")>0)
+        t_end = aquiutils::atof(Arguments.at("t_end"));
+
+    return SolveTransport(t_end,decay_coeff,decay_order);
 }
 
 
