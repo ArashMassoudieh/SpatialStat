@@ -28,7 +28,7 @@ QTableWidget *Interface::outputwindow()
 
 void Interface::SetProgressValue(const double &x)
 {
-    parent->current_progress_bar->setValue(x);
+    parent->current_progress_bar->setValue(x*100);
     outputwindow()->update();
     QCoreApplication::processEvents();
 }

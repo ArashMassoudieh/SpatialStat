@@ -31,6 +31,7 @@ public:
     bool SolveTransport(const map<string,string> &Arguments);
     void RenormalizeK(CDistribution *dist,int k=0);
     bool WriteKFieldToVTP(const map<string,string> &Arguments);
+    bool WriteConcentrationToVTP(const map<string,string> &Arguments);
     bool SolveHydro(const map<string,string> &Arguments);
     bool WriteHydroSolutionToVTP(const map<string,string> &Arguments);
     CTimeSeries<double> GetKValuesToTimeSeries(int k=0);
@@ -40,6 +41,8 @@ public:
     bool WriteHydroSolutionToVTP(const string &filename="solution.vtp", const double &z_factor=0.5, bool _log = false);
     bool SolveHydro(const double &leftboundary=0, const double &rightboundary=1);
     transportparameters TransportParameters;
+
+
 private:
     geometrical_parameters GeometricParameters;
     vector<vector<distributed_property> > p;
@@ -66,6 +69,8 @@ private:
     void CreateTransportKMatrix(const double &dt, const double &D, const double &weight);
     CVector_arma CreateTransportRHS(int species_counter, const double &dt, const double &weight, const double &D, const double &decay_coefficient, const double &decay_order);
     vector<CMatrix> C;
+    bool WriteConcentrationToVTP(int species_counter, const string &filename, const double &z_factor, bool _log, const vector<double> &t);
+    bool WriteConcentrationToVTP(int species_counter, const string &filename, const double &z_factor, bool _log, const double &t);
 
 };
 vector<ijval> GetClosestCells(vector<ijval> vec, int n);

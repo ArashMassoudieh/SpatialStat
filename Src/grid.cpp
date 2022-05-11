@@ -6,7 +6,7 @@
 
 
 vector<string> Grid::list_of_commands = vector<string>({"CreateGrid","AssignKField","WriteKFieldToVTP","RenormalizeKField","SolveHydro","WriteHydroSolutionToVTP","SolveTransport"\
-                                                       });
+                                                       ,"WriteConcentrationToVTP"});
 
 Grid::Grid():Interface()
 {
@@ -68,6 +68,8 @@ bool Grid::Execute(const string &cmd, const map<string,string> &arguments)
         return WriteHydroSolutionToVTP(arguments);
     if (cmd=="SolveTransport")
         return SolveTransport(arguments);
+    if (cmd=="WriteConcentrationToVTP")
+        return WriteConcentrationToVTP(arguments);
     return false;
 }
 
@@ -1102,6 +1104,199 @@ bool Grid::SolveTransport(const map<string,string> &Arguments)
 
     return SolveTransport(t_end,decay_coeff,decay_order);
 }
+
+bool Grid::WriteConcentrationToVTP(int species_counter, const string &filename, const double &z_factor, bool _log, const vector<double> &t)
+{
+    bool result=true;
+    for (int i = 0; i < t.size(); i++)
+    {
+        string filename_1 = aquiutils::split(filename, '.')[0] + "_" + aquiutils::numbertostring(i) +"." + aquiutils::split(filename, '.')[1];
+        result &= WriteConcentrationToVTP(species_counter, filename_1, z_factor, _log, t[i]);
+        SetProgressValue(double(i)/double(t.size()));
+    }
+    return result;
+}
+
+bool Grid::WriteConcentrationToVTP(int species_counter, const string &filename, const double &z_factor, bool _log, const double &t)
+{
+    vtkSmartPointer<vtkPoints> points_3 =
+        vtkSmartPointer<vtkPoints>::New();
+
+
+    double xx, yy, zz;
+    vtkSmartPointer<vtkFloatArray> values =
+        vtkSmartPointer<vtkFloatArray>::New();
+
+
+    values->SetNumberOfComponents(1);
+
+    if (_log)
+        values->SetName("Log Concentration");
+    else
+        values->SetName("Concentration");
+
+    for (unsigned int x = 0; x < GeometricParameters.nx; x++)
+    {
+        for (unsigned int y = 0; y < GeometricParameters.ny; y++)
+        {
+            xx = x*GeometricParameters.dx;
+            yy = y*GeometricParameters.dy;
+            zz = p[x][y].C[int(t/TransportParameters.dt)][species_counter];
+            if (!_log)
+            {
+                float CC[1] = { float(zz) };
+                points_3->InsertNextPoint(xx, yy, zz * z_factor);
+                values->InsertNextTupleValue(CC);
+            }
+            else
+            {
+                float CC[1] = { float(zz) };
+                points_3->InsertNextPoint(xx, yy, log(max(zz,1e-25))*z_factor);
+                values->InsertNextTupleValue(CC);
+            }
+        }
+    }
+
+    // Add the grid points to a polydata object
+    vtkSmartPointer<vtkPolyData> inputPolyData =
+        vtkSmartPointer<vtkPolyData>::New();
+    inputPolyData->SetPoints(points_3);
+
+    // Triangulate the grid points
+    vtkSmartPointer<vtkDelaunay2D> delaunay =
+        vtkSmartPointer<vtkDelaunay2D>::New();
+#if VTK_MAJOR_VERSION <= 5
+    delaunay->SetInput(inputPolyData);
+#else
+    delaunay->SetInputData(inputPolyData);
+#endif
+    delaunay->Update();
+    vtkPolyData* outputPolyData = delaunay->GetOutput();
+
+    double bounds[6];
+    outputPolyData->GetBounds(bounds);
+
+    // Find min and max z
+    double minz = bounds[4];
+    double maxz = bounds[5];
+
+    //std::cout << "minz: " << minz << std::endl;
+    //std::cout << "maxz: " << maxz << std::endl;
+
+    // Create the color map
+    vtkSmartPointer<vtkLookupTable> colorLookupTable =
+        vtkSmartPointer<vtkLookupTable>::New();
+    colorLookupTable->SetTableRange(minz, maxz);
+    colorLookupTable->Build();
+
+    // Generate the colors for each point based on the color map
+    vtkSmartPointer<vtkUnsignedCharArray> colors_2 =
+        vtkSmartPointer<vtkUnsignedCharArray>::New();
+    colors_2->SetNumberOfComponents(3);
+    colors_2->SetName("Colors");
+
+//	std::cout << "There are " << outputPolyData->GetNumberOfPoints()
+//		<< " points." << std::endl;
+
+    for (int i = 0; i < outputPolyData->GetNumberOfPoints(); i++)
+    {
+        double p[3];
+        outputPolyData->GetPoint(i, p);
+
+        double dcolor[3];
+        colorLookupTable->GetColor(p[2], dcolor);
+        //std::cout << "dcolor: "
+        //	<< dcolor[0] << " "
+        //	<< dcolor[1] << " "
+        //	<< dcolor[2] << std::endl;
+        unsigned char color[3];
+        for (unsigned int j = 0; j < 3; j++)
+        {
+            color[j] = static_cast<unsigned char>(255.0 * dcolor[j]);
+        }
+        //std::cout << "color: "
+        //	<< (int)color[0] << " "
+        //	<< (int)color[1] << " "
+        //	<< (int)color[2] << std::endl;
+
+        colors_2->InsertNextTupleValue(color);
+    }
+
+    outputPolyData->GetPointData()->SetScalars(values);
+
+    //Append the two meshes
+    vtkSmartPointer<vtkAppendPolyData> appendFilter =
+        vtkSmartPointer<vtkAppendPolyData>::New();
+#if VTK_MAJOR_VERSION <= 5
+    appendFilter->AddInputConnection(input1->GetProducerPort());
+    appendFilter->AddInputConnection(input2->GetProducerPort());
+#else
+    //appendFilter->AddInputData(polydata);
+    //appendFilter->AddInputData(polydata_1);
+    appendFilter->AddInputData(outputPolyData);
+#endif
+    appendFilter->Update();
+
+
+    // Visualization
+    vtkSmartPointer<vtkPolyDataMapper> mapper =
+        vtkSmartPointer<vtkPolyDataMapper>::New();
+#if VTK_MAJOR_VERSION <= 5
+    mapper->SetInputConnection(polydata->GetProducerPort());
+#else
+    mapper->SetInputConnection(appendFilter->GetOutputPort());
+    //mapper->SetInputData(polydata_1);
+#endif
+
+    vtkSmartPointer<vtkActor> actor =
+        vtkSmartPointer<vtkActor>::New();
+    actor->SetMapper(mapper);
+    actor->GetProperty()->SetPointSize(5);
+
+    vtkSmartPointer<vtkXMLPolyDataWriter> writer =
+        vtkSmartPointer<vtkXMLPolyDataWriter>::New();
+    writer->SetFileName(filename.c_str());
+    writer->SetInputData(mapper->GetInput());
+    // This is set so we can see the data in a text editor.
+    writer->SetDataModeToAscii();
+    writer->Write();
+    return true;
+}
+
+bool Grid::WriteConcentrationToVTP(const map<string,string> &Arguments)
+{
+    if (Arguments.count("filename") == 0) return false;
+    int species_counter;
+    if (TransportParameters.numberofspecies==1)
+        species_counter = 0;
+    else if (Arguments.count("species")==0)
+        species_counter = 0;
+    else
+        species_counter = aquiutils::atoi(Arguments.at("species"));
+    double concentration_interval = -1;
+
+    if (Arguments.count("interval") > 0)
+        concentration_interval = aquiutils::atof(Arguments.at("interval"));
+    else
+        concentration_interval = 1;
+    vector<double> intervals;
+    for (int i = 0; i < p[0][0].C.size(); i+=concentration_interval)
+    {
+            intervals.push_back(i*TransportParameters.dt);
+    }
+
+    double z_factor=1;
+    if (Arguments.count("z_factor") > 0)
+        z_factor = aquiutils::atof(Arguments.at("z_factor"));
+
+    bool _log = false;
+    if (Arguments.count("log") > 0)
+        _log = aquiutils::atof(Arguments.at("log"));
+
+    return WriteConcentrationToVTP(species_counter,Arguments.at("filename"), z_factor, _log, intervals);
+
+}
+
 
 
 
