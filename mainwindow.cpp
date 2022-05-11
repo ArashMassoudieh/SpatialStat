@@ -47,6 +47,7 @@ void MainWindow::on_test()
     environment.Execute(cmd);
     cmd = Command("grid*WriteConcentrationToVTP(filename:Concentration.vtp)");
     environment.Execute(cmd);
+    cmd = Command("BTC1=grid*WriteConcentrationToVTP(filename:Concentration.vtp)");
 
 
 }

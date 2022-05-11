@@ -81,6 +81,7 @@ void Command::Initialize_Command_Structure()
     Command_Structures["WriteHydroSolutionToVTP"].CommandType = command_type::modifier; Command_Structures["WriteHydroSolutionToVTP"].Object = "Grid"; Command_Structures["WriteHydroSolutionToVTP"].Output = "";
     Command_Structures["SolveTransport"].CommandType = command_type::modifier; Command_Structures["SolveTransport"].Object = "Grid"; Command_Structures["SolveTransport"].Output = "";
     Command_Structures["WriteConcentrationToVTP"].CommandType = command_type::modifier; Command_Structures["WriteConcentrationToVTP"].Object = "Grid"; Command_Structures["WriteConcentrationToVTP"].Output = "";
+    Command_Structures["GetConcentrationBTCAtX"].CommandType = command_type::creator; Command_Structures["GetConcentrationBTCAtX"].Object = "Grid"; Command_Structures["GetConcentrationBTCAtX"].Output = "timeseries";
 
 
     Command_Structures_Initialized = true;

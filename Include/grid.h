@@ -2,7 +2,6 @@
 #define GRID_H
 
 #include "interface.h"
-#include "Structs.h"
 #include "string"
 #include "map"
 #include "Matrix.h"
@@ -11,6 +10,7 @@
 #include "BTC.h"
 #include "Distribution.h"
 #include "vtk.h"
+#include "timeseriesd.h"
 
 using namespace std;
 
@@ -25,7 +25,7 @@ public:
     vector<string> commands();
     static vector<string> Commands();
     static vector<string> list_of_commands;
-    bool Execute(const string &cmd, const map<string,string> &arguments);
+    FunctionOutPut Execute(const string &cmd, const map<string,string> &arguments);
     bool AssignKFieldToGrid(const map<string,string> &Arguments);
     bool RenormalizeKField(const map<string,string> &Arguments);
     bool SolveTransport(const map<string,string> &Arguments);
@@ -34,6 +34,7 @@ public:
     bool WriteConcentrationToVTP(const map<string,string> &Arguments);
     bool SolveHydro(const map<string,string> &Arguments);
     bool WriteHydroSolutionToVTP(const map<string,string> &Arguments);
+    TimeSeriesD GetConcentrationBTCAtX(const map<string,string> &Arguments);
     CTimeSeries<double> GetKValuesToTimeSeries(int k=0);
     void RemapKFieldBasedonMarginalDistribution(CDistribution *dist,int k=0);
     double MapToMarginalDistribution(const double &u, CDistribution *dist);
@@ -71,6 +72,8 @@ private:
     vector<CMatrix> C;
     bool WriteConcentrationToVTP(int species_counter, const string &filename, const double &z_factor, bool _log, const vector<double> &t);
     bool WriteConcentrationToVTP(int species_counter, const string &filename, const double &z_factor, bool _log, const double &t);
+    TimeSeriesD GetConcentrationBTCAtX(int species_counter, const double &x, const string &filename, const string &filename_d);
+    double GetConcentrationAtX(int species_counter, const double &x, int timestep);
 
 };
 vector<ijval> GetClosestCells(vector<ijval> vec, int n);

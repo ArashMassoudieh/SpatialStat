@@ -6,7 +6,7 @@
 
 
 vector<string> Grid::list_of_commands = vector<string>({"CreateGrid","AssignKField","WriteKFieldToVTP","RenormalizeKField","SolveHydro","WriteHydroSolutionToVTP","SolveTransport"\
-                                                       ,"WriteConcentrationToVTP"});
+                                                       ,"WriteConcentrationToVTP","GetConcentrationBTCAtX"});
 
 Grid::Grid():Interface()
 {
@@ -52,25 +52,52 @@ bool Grid::HasCommand(const string &cmd)
         return false;
 }
 
-bool Grid::Execute(const string &cmd, const map<string,string> &arguments)
+FunctionOutPut Grid::Execute(const string &cmd, const map<string,string> &arguments)
 {
+    FunctionOutPut output;
     if (cmd=="CreateGrid")
-        return CreateGrid(arguments);
+    {   output.success = CreateGrid(arguments);
+        output.output = this;
+    }
     if (cmd=="AssignKField")
-        return AssignKFieldToGrid(arguments);
+    {   output.success = AssignKFieldToGrid(arguments);
+
+    }
     if (cmd=="RenormalizeKField")
-        return RenormalizeKField(arguments);
+    {
+        output.success = RenormalizeKField(arguments);
+
+    }
     if (cmd=="WriteKFieldToVTP")
-        return WriteKFieldToVTP(arguments);
+    {
+        output.success = WriteKFieldToVTP(arguments);
+
+    }
     if (cmd=="SolveHydro")
-        return SolveHydro(arguments);
+    {   output.success = SolveHydro(arguments);
+
+    }
     if (cmd=="WriteHydroSolutionToVTP")
-        return WriteHydroSolutionToVTP(arguments);
+    {   output.success = WriteHydroSolutionToVTP(arguments);
+
+    }
     if (cmd=="SolveTransport")
-        return SolveTransport(arguments);
+    {   output.success = SolveTransport(arguments);
+
+    }
     if (cmd=="WriteConcentrationToVTP")
-        return WriteConcentrationToVTP(arguments);
-    return false;
+    {   output.success = WriteConcentrationToVTP(arguments);
+
+    }
+    if (cmd=="GetConcentrationBTCAtX")
+    {   output.output = new TimeSeriesD(GetConcentrationBTCAtX(arguments));
+        if (dynamic_cast<TimeSeriesD*>(output.output)->n>0)
+            output.success = true;
+        else
+            output.success = false;
+    }
+
+    return output;
 }
 
 bool Grid::AssignKFieldToGrid(const map<string,string> &Arguments)
@@ -1297,6 +1324,46 @@ bool Grid::WriteConcentrationToVTP(const map<string,string> &Arguments)
 
 }
 
+TimeSeriesD Grid::GetConcentrationBTCAtX(int species_counter, const double &x, const string &filename, const string &filename_d)
+{
+    TimeSeriesD output;
+    for (int tt=0; tt<p[0][0].C.size(); tt++)
+    {
+        output.append(tt*TransportParameters.dt,GetConcentrationAtX(species_counter, x,tt));
+    }
+    output.writefile(filename);
+    if (filename_d!="")
+        output.derivative().writefile(filename_d);
+    return output;
+}
 
+double Grid::GetConcentrationAtX(int species_counter, const double &x, int timestep)
+{
+    int i=x/GeometricParameters.dx;
+    double output = 0;
+    for (int j=0; j<GeometricParameters.ny; j++)
+        output += p[i][j].C[timestep][species_counter]/GeometricParameters.ny;
+
+    return output;
+}
+
+TimeSeriesD Grid::GetConcentrationBTCAtX(const map<string,string> &Arguments)
+{
+    int species_id=0;
+    if (Arguments.count("species")>0)
+        species_id = aquiutils::atoi(Arguments.at("species"));
+    if (Arguments.count("x")==0)
+        return TimeSeriesD();
+    string filename, filename_d;
+    if (Arguments.count("filename")>0)
+        filename = Arguments.at("filename");
+
+    if (Arguments.count("filename_d")>0)
+        filename_d = Arguments.at("filename_d");
+
+    return GetConcentrationBTCAtX(species_id, aquiutils::atof(Arguments.at("x")),filename,filename_d);
+
+
+}
 
 

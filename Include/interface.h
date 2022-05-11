@@ -4,11 +4,13 @@
 #include <string>
 #include <vector>
 #include <map>
+#include "Structs.h"
 
 enum class object_type {PathwaySet, D2Grid, Distribution};
 
 class Environment;
 class QTableWidget;
+
 
 using namespace std;
 
@@ -20,7 +22,7 @@ public:
     object_type ObjectType;
     virtual vector<string> commands();
     bool HasCommand(const string &cmd);
-    virtual bool Execute(const string &cmd, const map<string,string> &arguments)=0;
+    virtual FunctionOutPut Execute(const string &cmd, const map<string,string> &arguments)=0;
     QTableWidget *outputwindow();
     void SetProgressValue(const double &x);
 

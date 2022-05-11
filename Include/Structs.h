@@ -9,6 +9,15 @@
 #include "Matrix_arma_sp.h"
 #include "Matrix.h"
 
+class Interface;
+
+struct FunctionOutPut
+{
+    bool success;
+    Interface *output = nullptr;
+};
+
+
 struct geometrical_parameters
 {
     int nx, ny;

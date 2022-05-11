@@ -205,12 +205,15 @@ SOURCES += \
     Src/grid.cpp \
     Src/interface.cpp \
     Src/script.cpp \
+    Src/timeseriesd.cpp \
     main.cpp \
     mainwindow.cpp
 
 HEADERS += \
     ../Utilities/BTC.h \
+    ../Utilities/BTC.hpp \
     ../Utilities/BTCSet.h \
+    ../Utilities/BTCSet.hpp \
     ../Utilities/Concentrations.h \
     ../Utilities/Distribution.h \
     ../Utilities/Matrix.h \
@@ -227,6 +230,7 @@ HEADERS += \
     Include/grid.h \
     Include/interface.h \
     Include/script.h \
+    Include/timeseriesd.h \
     Include/vtk.h \
     mainwindow.h
 
