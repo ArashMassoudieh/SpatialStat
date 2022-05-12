@@ -16,33 +16,40 @@ Command::Command(const string &cmdline)
     if (!Command_Structures_Initialized)
         Initialize_Command_Structure();
 
-
-    vector<string> s = aquiutils::split(cmdline,deliminators);
-    if (s.size()>=2)
+    vector<string> argument_list;
+    string the_rest;
+    if (aquiutils::contains(cmdline,"("))
     {
-        command = s[1];
-        if (Command_Structures.count(command)==1)
-        {   if (Command_Structures[command].CommandType == command_type::creator)
-            {   object_name = s[0];
-                for (unsigned int i=2; i<s.size(); i++)
-                {
-                    vector<string> arg = aquiutils::split(s[i],':');
-                    if (arg.size()==2)
-                        arguments[arg[0]] = arg[1];
-                }
-            }
-            else if (Command_Structures[command].CommandType == command_type::modifier)
-            {
-                object_name = s[0];
-                for (unsigned int i=2; i<s.size(); i++)
-                {
-                    vector<string> arg = aquiutils::split(s[i],':');
-                    if (arg.size()==2)
-                        arguments[arg[0]] = arg[1];
-                }
-            }
+        argument_list = aquiutils::split(aquiutils::split(aquiutils::split(cmdline,'(')[1],')')[0],',');
+
+        for (unsigned int i=0; i<argument_list.size(); i++)
+        {
+            vector<string> arg = aquiutils::split(argument_list[i],'=');
+            if (arg.size()==2)
+                arguments[arg[0]] = arg[1];
         }
+        the_rest = aquiutils::split(cmdline,'(')[0];
     }
+    string rhs;
+    if (aquiutils::contains(the_rest,"="))
+    {
+        object_name=aquiutils::split(the_rest,'=')[0];
+        rhs = aquiutils::split(the_rest,'=')[1];
+    }
+    else
+    {
+        rhs = the_rest;
+    }
+    if (aquiutils::contains(rhs,"."))
+    {
+        object_name = aquiutils::split(rhs,'.')[0];
+        command = aquiutils::split(rhs,'.')[1];
+    }
+    else
+    {
+        command = aquiutils::split(rhs,'.')[0];
+    }
+
 }
 
 Command Command::operator = (const Command &C)
