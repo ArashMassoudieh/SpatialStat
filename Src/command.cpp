@@ -76,19 +76,19 @@ Command::Command(const Command &C)
 void Command::Initialize_Command_Structure()
 {
     command_parameters cmd;
-    Command_Structures["CreateGrid"].CommandType = command_type::creator; Command_Structures["CreateGrid"].Object = "Grid"; Command_Structures["CreateGrid"].Output = "Grid";
-    Command_Structures["CreateDistribution"].CommandType = command_type::creator; Command_Structures["CreateDistribution"].Object = "Distribution"; Command_Structures["CreateDistribution"].Output = "Distribution";
-    Command_Structures["WriteToFile"].CommandType = command_type::modifier; Command_Structures["WriteToFile"].Object = "Distribution"; Command_Structures["WriteToFile"].Output = "";
-    Command_Structures["SetInverseCumulative"].CommandType = command_type::modifier; Command_Structures["SetInverseCumulative"].Object = "Distribution"; Command_Structures["WriteToFile"].Output = "";
-    Command_Structures["WriteInverseCumulativeToFile"].CommandType = command_type::modifier; Command_Structures["WriteInverseCumulativeToFile"].Object = "Distribution"; Command_Structures["WriteInverseCumulativeToFile"].Output = "";
-    Command_Structures["AssignKField"].CommandType = command_type::modifier; Command_Structures["AssignKField"].Object = "Grid"; Command_Structures["AssignKField"].Output = "";
-    Command_Structures["WriteKFieldToVTP"].CommandType = command_type::modifier; Command_Structures["WriteKFieldToVTP"].Object = "Grid"; Command_Structures["WriteKFieldToVTP"].Output = "";
-    Command_Structures["RenormalizeKField"].CommandType = command_type::modifier; Command_Structures["RenormalizeKField"].Object = "Grid"; Command_Structures["RenormalizeKField"].Output = "";
-    Command_Structures["SolveHydro"].CommandType = command_type::modifier; Command_Structures["SolveHydro"].Object = "Grid"; Command_Structures["SolveHydro"].Output = "";
-    Command_Structures["WriteHydroSolutionToVTP"].CommandType = command_type::modifier; Command_Structures["WriteHydroSolutionToVTP"].Object = "Grid"; Command_Structures["WriteHydroSolutionToVTP"].Output = "";
-    Command_Structures["SolveTransport"].CommandType = command_type::modifier; Command_Structures["SolveTransport"].Object = "Grid"; Command_Structures["SolveTransport"].Output = "";
-    Command_Structures["WriteConcentrationToVTP"].CommandType = command_type::modifier; Command_Structures["WriteConcentrationToVTP"].Object = "Grid"; Command_Structures["WriteConcentrationToVTP"].Output = "";
-    Command_Structures["GetConcentrationBTCAtX"].CommandType = command_type::creator; Command_Structures["GetConcentrationBTCAtX"].Object = "Grid"; Command_Structures["GetConcentrationBTCAtX"].Output = "timeseries";
+    Command_Structures["CreateGrid"].CommandType = command_type::creator; Command_Structures["CreateGrid"].Object = object_type::grid; Command_Structures["CreateGrid"].Output = object_type::grid;
+    Command_Structures["CreateDistribution"].CommandType = command_type::creator; Command_Structures["CreateDistribution"].Object = object_type::distribution; Command_Structures["CreateDistribution"].Output = object_type::distribution;
+    Command_Structures["WriteToFile"].CommandType = command_type::modifier; Command_Structures["WriteToFile"].Object = object_type::distribution; Command_Structures["WriteToFile"].Output = object_type::none;
+    Command_Structures["SetInverseCumulative"].CommandType = command_type::modifier; Command_Structures["SetInverseCumulative"].Object = object_type::distribution; Command_Structures["WriteToFile"].Output = object_type::none;
+    Command_Structures["WriteInverseCumulativeToFile"].CommandType = command_type::modifier; Command_Structures["WriteInverseCumulativeToFile"].Object = object_type::distribution; Command_Structures["WriteInverseCumulativeToFile"].Output = object_type::none;
+    Command_Structures["AssignKField"].CommandType = command_type::modifier; Command_Structures["AssignKField"].Object = object_type::grid; Command_Structures["AssignKField"].Output = object_type::none;
+    Command_Structures["WriteKFieldToVTP"].CommandType = command_type::modifier; Command_Structures["WriteKFieldToVTP"].Object = object_type::grid; Command_Structures["WriteKFieldToVTP"].Output = object_type::none;
+    Command_Structures["RenormalizeKField"].CommandType = command_type::modifier; Command_Structures["RenormalizeKField"].Object = object_type::grid; Command_Structures["RenormalizeKField"].Output = object_type::none;
+    Command_Structures["SolveHydro"].CommandType = command_type::modifier; Command_Structures["SolveHydro"].Object = object_type::grid; Command_Structures["SolveHydro"].Output = object_type::none;
+    Command_Structures["WriteHydroSolutionToVTP"].CommandType = command_type::modifier; Command_Structures["WriteHydroSolutionToVTP"].Object = object_type::grid; Command_Structures["WriteHydroSolutionToVTP"].Output = object_type::none;
+    Command_Structures["SolveTransport"].CommandType = command_type::modifier; Command_Structures["SolveTransport"].Object = object_type::grid; Command_Structures["SolveTransport"].Output = object_type::none;
+    Command_Structures["WriteConcentrationToVTP"].CommandType = command_type::modifier; Command_Structures["WriteConcentrationToVTP"].Object = object_type::grid; Command_Structures["WriteConcentrationToVTP"].Output = object_type::none;
+    Command_Structures["GetConcentrationBTCAtX"].CommandType = command_type::creator; Command_Structures["GetConcentrationBTCAtX"].Object = object_type::grid; Command_Structures["GetConcentrationBTCAtX"].Output = object_type::timeseries;
 
 
     Command_Structures_Initialized = true;

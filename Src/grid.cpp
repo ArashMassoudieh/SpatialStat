@@ -61,33 +61,33 @@ FunctionOutPut Grid::Execute(const string &cmd, const map<string,string> &argume
     }
     if (cmd=="AssignKField")
     {   output.success = AssignKFieldToGrid(arguments);
-
+        output.output = nullptr;
     }
     if (cmd=="RenormalizeKField")
     {
         output.success = RenormalizeKField(arguments);
-
+        output.output = nullptr;
     }
     if (cmd=="WriteKFieldToVTP")
     {
         output.success = WriteKFieldToVTP(arguments);
-
+        output.output = nullptr;
     }
     if (cmd=="SolveHydro")
     {   output.success = SolveHydro(arguments);
-
+        output.output = nullptr;
     }
     if (cmd=="WriteHydroSolutionToVTP")
     {   output.success = WriteHydroSolutionToVTP(arguments);
-
+        output.output = nullptr;
     }
     if (cmd=="SolveTransport")
     {   output.success = SolveTransport(arguments);
-
+        output.output = nullptr;
     }
     if (cmd=="WriteConcentrationToVTP")
     {   output.success = WriteConcentrationToVTP(arguments);
-
+        output.output = nullptr;
     }
     if (cmd=="GetConcentrationBTCAtX")
     {   output.output = new TimeSeriesD(GetConcentrationBTCAtX(arguments));
@@ -1331,7 +1331,8 @@ TimeSeriesD Grid::GetConcentrationBTCAtX(int species_counter, const double &x, c
     {
         output.append(tt*TransportParameters.dt,GetConcentrationAtX(species_counter, x,tt));
     }
-    output.writefile(filename);
+    if (filename!="")
+        output.writefile(filename);
     if (filename_d!="")
         output.derivative().writefile(filename_d);
     return output;

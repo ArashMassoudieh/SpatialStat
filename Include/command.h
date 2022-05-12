@@ -1,18 +1,21 @@
+#pragma once
 #ifndef COMMAND_H
 #define COMMAND_H
 
 #include <string>
 #include <map>
 #include <vector>
+#include "Structs.h"
 
 using namespace std;
 
 enum class command_type {creator, modifier};
 
+
 struct command_parameters
 {
-    string Object;
-    string Output;
+    object_type Object;
+    object_type Output;
     command_type CommandType;
 };
 

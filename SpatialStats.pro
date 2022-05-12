@@ -1,10 +1,10 @@
-VTKBUILDPATH = /home/arash/Projects/VTK-build
-VTKHEADERPATH = /home/arash/Projects/VTK
-VTK_V = $$-9.0
+#VTKBUILDPATH = /home/arash/Projects/VTK-build
+#VTKHEADERPATH = /home/arash/Projects/VTK
+#VTK_V = $$-9.0
 
-#VTKBUILDPATH = /media/arash/E/Projects/VTK-9.1.0/VTK-build
-#VTKHEADERPATH = /media/arash/E/Projects/VTK-9.1.0
-#VTK_V = -9.1
+VTKBUILDPATH = /media/arash/E/Projects/VTK-9.1.0/VTK-build
+VTKHEADERPATH = /media/arash/E/Projects/VTK-9.1.0
+VTK_V = -9.1
 QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -200,6 +200,12 @@ SOURCES += \
     ../Utilities/Utilities.cpp \
     ../Utilities/Vector.cpp \
     ../Utilities/Vector_arma.cpp \
+    Src/2DMap.cpp \
+    Src/Copula.cpp \
+    Src/MapAsTimeSeriesSet.cpp \
+    Src/Pathway.cpp \
+    Src/PathwaySet.cpp \
+    Src/Position.cpp \
     Src/command.cpp \
     Src/environment.cpp \
     Src/grid.cpp \
@@ -224,6 +230,12 @@ HEADERS += \
     ../Utilities/Utilities.h \
     ../Utilities/Vector.h \
     ../Utilities/Vector_arma.h \
+    Include/2DMap.h \
+    Include/Copula.h \
+    Include/MapAsTimeSeriesSet.h \
+    Include/Pathway.h \
+    Include/PathwaySet.h \
+    Include/Position.h \
     Include/Structs.h \
     Include/command.h \
     Include/environment.h \

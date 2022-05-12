@@ -1,7 +1,7 @@
+#pragma once
 #ifndef STRUCTS_H
 #define STRUCTS_H
 
-#endif // STRUCTS_H
 #include "Vector.h"
 #include "Concentrations.h"
 #include "BTC.h"
@@ -10,6 +10,8 @@
 #include "Matrix.h"
 
 class Interface;
+
+enum class object_type {none, grid, distribution, timeseries, pathwayset};
 
 struct FunctionOutPut
 {
@@ -81,3 +83,4 @@ struct transportparameters
     vector<double> leftboundary_C;
 
 };
+#endif // STRUCTS_H

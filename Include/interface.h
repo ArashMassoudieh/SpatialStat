@@ -1,3 +1,4 @@
+#pragma once
 #ifndef INTERFACE_H
 #define INTERFACE_H
 
@@ -6,7 +7,6 @@
 #include <map>
 #include "Structs.h"
 
-enum class object_type {PathwaySet, D2Grid, Distribution};
 
 class Environment;
 class QTableWidget;

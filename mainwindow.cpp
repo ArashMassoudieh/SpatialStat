@@ -47,7 +47,7 @@ void MainWindow::on_test()
     environment.Execute(cmd);
     cmd = Command("grid.WriteConcentrationToVTP(filename=Concentration.vtp)");
     environment.Execute(cmd);
-    cmd = Command("BTC1=grid.WriteConcentrationToVTP(filename=Concentration.vtp)");
-
+    cmd = Command("BTC1=grid.GetConcentrationBTCAtX(x=0.5,filename=BTC_c.txt,filename_d=BTC.txt)");
+    environment.Execute(cmd);
 
 }
