@@ -104,6 +104,14 @@ FunctionOutPut Grid::Execute(const string &cmd, const map<string,string> &argume
         else
             output.success = false;
     }
+    if (cmd=="CreateTrajectories")
+    {   output.output = new CPathwaySet(CreateTrajectories(arguments));
+        if (dynamic_cast<CPathwaySet*>(output.output)->n()>0)
+            output.success = true;
+        else
+            output.success = false;
+    }
+
 
     return output;
 }
@@ -1377,12 +1385,29 @@ CPathwaySet Grid::CreateTrajectories(const map<string,string> &Arguments)
 {
     int n=1;
     double x_0=GeometricParameters.dx/2;
+    double dx, x_end;
+    double tol=1e-6;
+    double diffusion=0;
     if (Arguments.count("n")!=0)
         n = aquiutils::atoi(Arguments.at("n"));
     if (Arguments.count("x_0")!=0)
         x_0 = aquiutils::atof(Arguments.at("x_0"));
+    if (Arguments.count("dx")==0)
+        return CPathwaySet();
+    else
+        dx = aquiutils::atof(Arguments.at("dx"));
 
+    if (Arguments.count("x_end")==0)
+        x_end = GeometricParameters.dx*(GeometricParameters.nx-1);
+    else
+        x_end = aquiutils::atof(Arguments.at("x_end"));
+    if (Arguments.count("tolerance")!=0)
+        tol = aquiutils::atof(Arguments.at("tolerance"));
+
+    if (Arguments.count("diffusion")!=0)
+        tol = aquiutils::atof(Arguments.at("diffusion"));
     vector<CPosition> pts = InitializeTrajectories(n,x_0);
+    return BuildTrajectories(pts, dx, x_end, tol, diffusion);
 }
 
 vector<CPosition> Grid::InitializeTrajectories(int numpoints, const double &x_0)

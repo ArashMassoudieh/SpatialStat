@@ -33,7 +33,7 @@ Command::Command(const string &cmdline)
     string rhs;
     if (aquiutils::contains(the_rest,"="))
     {
-        object_name=aquiutils::split(the_rest,'=')[0];
+        output_name=aquiutils::split(the_rest,'=')[0];
         rhs = aquiutils::split(the_rest,'=')[1];
     }
     else
@@ -49,11 +49,13 @@ Command::Command(const string &cmdline)
     {
         command = aquiutils::split(rhs,'.')[0];
     }
+    if (object_name=="") object_name = output_name;
 
 }
 
 Command Command::operator = (const Command &C)
 {
+    output_name = C.output_name;
     arguments = C.arguments;
     command = C.command;
     object_name = C.object_name;
@@ -68,6 +70,7 @@ Command::~Command(void)
 
 Command::Command(const Command &C)
 {
+    output_name = C.output_name;
     arguments = C.arguments;
     command = C.command;
     object_name = C.object_name;

@@ -44,9 +44,8 @@ public:
     bool AssignVelocities();
     void show_in_window(string s);
     FunctionOutPut Execute(const string &cmd, const map<string,string> &arguments);
-    bool HasCommand(const string &cmd);
-    vector<string> Commands();
-    static vector<string> list_of_commands;
+    static bool HasCommand(const string &cmd);
+    static vector<string> Commands();
 
 };
 

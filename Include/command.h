@@ -26,6 +26,7 @@ public:
     map<string,string> arguments;
     string command;
     string object_name;
+    string output_name;
     static vector<char> deliminators;
     static map<string,command_parameters> Command_Structures;
     bool Command_Structures_Initialized = false;

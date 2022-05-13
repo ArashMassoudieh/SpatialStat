@@ -33,20 +33,11 @@ bool Environment::Execute(const Command &cmd)
             Objects[cmd.object_name] = new Grid();
             Objects[cmd.object_name]->parent = this;
         }
-        if (cmd.Command_Structures[cmd.command].Output==object_type::grid)
+        if (cmd.Command_Structures[cmd.command].Output!=object_type::none)
         {
             output = dynamic_cast<Grid*>(Objects[cmd.object_name])->Execute(cmd.command, cmd.arguments);
-            Objects[cmd.object_name] = output.output;
-        }
-        else if (cmd.Command_Structures[cmd.command].Output==object_type::distribution)
-        {
-            output = dynamic_cast<Grid*>(Objects[cmd.object_name])->Execute(cmd.command, cmd.arguments);
-            Objects[cmd.object_name] = output.output;
-        }
-        else if (cmd.Command_Structures[cmd.command].Output==object_type::timeseries)
-        {
-            output = dynamic_cast<Grid*>(Objects[cmd.object_name])->Execute(cmd.command, cmd.arguments);
-            Objects[cmd.object_name] = output.output;
+            if (cmd.output_name!="")
+                Objects[cmd.output_name] = output.output;
         }
         else
         {
@@ -65,21 +56,12 @@ bool Environment::Execute(const Command &cmd)
             Objects[cmd.object_name] = new CDistribution();
             Objects[cmd.object_name]->parent = this;
         }
-        if (cmd.Command_Structures[cmd.command].Output==object_type::grid)
+        if (cmd.Command_Structures[cmd.command].Output!=object_type::none)
         {
             output = dynamic_cast<CDistribution*>(Objects[cmd.object_name])->Execute(cmd.command, cmd.arguments);
-            Objects[cmd.object_name] = output.output;
+            if (cmd.output_name!="")
+                Objects[cmd.output_name] = output.output;
         }
-        else if (cmd.Command_Structures[cmd.command].Output==object_type::distribution)
-        {
-            output = dynamic_cast<CDistribution*>(Objects[cmd.object_name])->Execute(cmd.command, cmd.arguments);
-            Objects[cmd.object_name] = output.output;
-        }
-        else if (cmd.Command_Structures[cmd.command].Output==object_type::timeseries)
-        {
-            output = dynamic_cast<CDistribution*>(Objects[cmd.object_name])->Execute(cmd.command, cmd.arguments);
-            Objects[cmd.object_name] = output.output;
-         }
         else
         {
             output = dynamic_cast<CDistribution*>(Objects[cmd.object_name])->Execute(cmd.command, cmd.arguments);
@@ -97,24 +79,38 @@ bool Environment::Execute(const Command &cmd)
             Objects[cmd.object_name] = new TimeSeriesD();
             Objects[cmd.object_name]->parent = this;
         }
-        if (cmd.Command_Structures[cmd.command].Output==object_type::grid)
+        if (cmd.Command_Structures[cmd.command].Output!=object_type::none)
         {
-            output = dynamic_cast<CDistribution*>(Objects[cmd.object_name])->Execute(cmd.command, cmd.arguments);
-            Objects[cmd.object_name] = output.output;
-        }
-        else if (cmd.Command_Structures[cmd.command].Output==object_type::distribution)
-        {
-            output = dynamic_cast<CDistribution*>(Objects[cmd.object_name])->Execute(cmd.command, cmd.arguments);
-            Objects[cmd.object_name] = output.output;
-        }
-        else if (cmd.Command_Structures[cmd.command].Output==object_type::timeseries)
-        {
-            output = dynamic_cast<CDistribution*>(Objects[cmd.object_name])->Execute(cmd.command, cmd.arguments);
-            Objects[cmd.object_name] = output.output;
+            output = dynamic_cast<TimeSeriesD*>(Objects[cmd.object_name])->Execute(cmd.command, cmd.arguments);
+            if (cmd.output_name!="")
+                Objects[cmd.output_name] = output.output;
         }
         else
         {
-            output = dynamic_cast<CDistribution*>(Objects[cmd.object_name])->Execute(cmd.command, cmd.arguments);
+            output = dynamic_cast<TimeSeriesD*>(Objects[cmd.object_name])->Execute(cmd.command, cmd.arguments);
+        }
+        Objects[cmd.object_name]->parent = this;
+        current_progress_bar->setValue(100);
+        outputwindow->update();
+        QCoreApplication::processEvents();
+        return output.success;
+    }
+    if (CPathwaySet::HasCommand(cmd.command))
+    {
+        if (Objects.count(cmd.object_name)==0)
+        {
+            Objects[cmd.object_name] = new CPathwaySet();
+            Objects[cmd.object_name]->parent = this;
+        }
+        if (cmd.Command_Structures[cmd.command].Output!=object_type::none)
+        {
+            output = dynamic_cast<CPathwaySet*>(Objects[cmd.object_name])->Execute(cmd.command, cmd.arguments);
+            if (cmd.output_name!="")
+                Objects[cmd.output_name] = output.output;
+        }
+        else
+        {
+            output = dynamic_cast<CPathwaySet*>(Objects[cmd.object_name])->Execute(cmd.command, cmd.arguments);
         }
         Objects[cmd.object_name]->parent = this;
         current_progress_bar->setValue(100);

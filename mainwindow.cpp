@@ -23,31 +23,34 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_test()
 {
-    Command cmd = Command("grid=CreateGrid(nx=100,ny=100,dx=0.01,dy=0.01)");
-    environment.Execute(cmd);
-    cmd = Command("dist=CreateDistribution(type=lognormal,p0=1,p1=0,p2=1)");
-    environment.Execute(cmd);
-    cmd = Command("dist.WriteToFile(filename=test.txt,nbins=50");
-    environment.Execute(cmd);
-    cmd = Command("dist.SetInverseCumulative(ninc=1000)");
-    environment.Execute(cmd);
-    cmd = Command("dist.WriteInverseCumulativeToFile(filename=inversecumulative.txt)");
-    environment.Execute(cmd);
-    cmd = Command("grid.AssignKField(Distribution=dist,correlation_length_x=0.5,correlation_length_y=0.5,Maximum_neighboring_nodes=11)");
-    environment.Execute(cmd);
-    cmd = Command("grid.RenormalizeKField(Distribution=dist");
-    environment.Execute(cmd);
-    cmd = Command("grid.WriteKFieldToVTP(filename=K_field.vtp,z_scale=0.1,log_scale=0");
-    environment.Execute(cmd);
-    cmd = Command("grid.SolveHydro(l_boundary=1,r_boundary=0");
-    environment.Execute(cmd);
-    cmd = Command("grid.WriteHydroSolutionToVTP(filename=hydro_solution.vtp,z_scale=0.1,log_scale=0");
-    environment.Execute(cmd);
-    cmd = Command("grid.SolveTransport(nspecies=1,decay_coeff=1,decay_order=1,time_weight=1,l_boundary=1,diffusion=0,dt=0.005,t_end=1)");
-    environment.Execute(cmd);
-    cmd = Command("grid.WriteConcentrationToVTP(filename=Concentration.vtp)");
-    environment.Execute(cmd);
-    cmd = Command("BTC1=grid.GetConcentrationBTCAtX(x=0.5,filename=BTC_c.txt,filename_d=BTC.txt)");
-    environment.Execute(cmd);
+    Command cmd1 = Command("grid=CreateGrid(nx=100,ny=100,dx=0.01,dy=0.01)");
+    environment.Execute(cmd1);
+    Command cmd2 = Command("dist=CreateDistribution(type=lognormal,p0=1,p1=0,p2=1)");
+    environment.Execute(cmd2);
+    Command cmd3 = Command("dist.WriteToFile(filename=test.txt,nbins=50");
+    environment.Execute(cmd3);
+    Command cmd4 = Command("dist.SetInverseCumulative(ninc=1000)");
+    environment.Execute(cmd4);
+    Command cmd5 = Command("dist.WriteInverseCumulativeToFile(filename=inversecumulative.txt)");
+    environment.Execute(cmd5);
+    Command cmd6 = Command("grid.AssignKField(Distribution=dist,correlation_length_x=0.5,correlation_length_y=0.5,Maximum_neighboring_nodes=11)");
+    environment.Execute(cmd6);
+    Command cmd7 = Command("grid.RenormalizeKField(Distribution=dist");
+    environment.Execute(cmd7);
+    Command cmd8 = Command("grid.WriteKFieldToVTP(filename=K_field.vtp,z_scale=0.1,log_scale=0");
+    environment.Execute(cmd8);
+    Command cmd9 = Command("grid.SolveHydro(l_boundary=1,r_boundary=0");
+    environment.Execute(cmd9);
+    Command cmd10 = Command("grid.WriteHydroSolutionToVTP(filename=hydro_solution.vtp,z_scale=0.1,log_scale=0");
+    environment.Execute(cmd10);
+    Command cmd11 = Command("grid.SolveTransport(nspecies=1,decay_coeff=1,decay_order=1,time_weight=1,l_boundary=1,diffusion=0,dt=0.005,t_end=1)");
+    environment.Execute(cmd11);
+    Command cmd12 = Command("grid.WriteConcentrationToVTP(filename=Concentration.vtp,interval=5)");
+    environment.Execute(cmd12);
+    Command cmd13 = Command("BTC1=grid.GetConcentrationBTCAtX(x=0.5,filename=BTC_c.txt,filename_d=BTC.txt)");
+    environment.Execute(cmd13);
+    Command cmd14 = Command("pthways1=grid.CreateTrajectories(n=20,x_0=0.01,x_end=0.95,tol=0.001)");
+    environment.Execute(cmd14);
+
 
 }
