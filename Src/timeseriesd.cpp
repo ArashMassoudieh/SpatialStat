@@ -1,6 +1,6 @@
 #include "timeseriesd.h"
+#include "command.h"
 
-vector<string> TimeSeriesD::list_of_commands = vector<string>({"CreateDistribution","WriteToFile", "SetInverseCumulative", "WriteInverseCumulativeToFile"});
 
 TimeSeriesD::TimeSeriesD():CTimeSeries<double>()
 {
@@ -28,6 +28,11 @@ bool TimeSeriesD::HasCommand(const string &cmd)
 
 vector<string> TimeSeriesD::Commands()
 {
-    //return vector<string>();
-    return list_of_commands;
+    vector<string> cmds;
+    for (map<string,command_parameters>::iterator i=Command::Command_Structures.begin(); i!=Command::Command_Structures.end(); i++)
+    {
+        if (i->second.Object==object_type::timeseries)
+            cmds.push_back(i->first);
+    }
+    return cmds;
 }

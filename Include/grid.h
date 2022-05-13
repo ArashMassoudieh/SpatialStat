@@ -12,6 +12,7 @@
 #include "Distribution.h"
 #include "vtk.h"
 #include "timeseriesd.h"
+#include "PathwaySet.h"
 
 using namespace std;
 
@@ -25,7 +26,6 @@ public:
     static bool HasCommand(const string &cmd);
     vector<string> commands();
     static vector<string> Commands();
-    static vector<string> list_of_commands;
     FunctionOutPut Execute(const string &cmd, const map<string,string> &arguments);
     bool AssignKFieldToGrid(const map<string,string> &Arguments);
     bool RenormalizeKField(const map<string,string> &Arguments);
@@ -35,6 +35,7 @@ public:
     bool WriteConcentrationToVTP(const map<string,string> &Arguments);
     bool SolveHydro(const map<string,string> &Arguments);
     bool WriteHydroSolutionToVTP(const map<string,string> &Arguments);
+    CPathwaySet CreateTrajectories(const map<string,string> &Arguments);
     TimeSeriesD GetConcentrationBTCAtX(const map<string,string> &Arguments);
     CTimeSeries<double> GetKValuesToTimeSeries(int k=0);
     void RemapKFieldBasedonMarginalDistribution(CDistribution *dist,int k=0);
@@ -75,6 +76,12 @@ private:
     bool WriteConcentrationToVTP(int species_counter, const string &filename, const double &z_factor, bool _log, const double &t);
     TimeSeriesD GetConcentrationBTCAtX(int species_counter, const double &x, const string &filename, const string &filename_d);
     double GetConcentrationAtX(int species_counter, const double &x, int timestep);
+    vector<CPosition> InitializeTrajectories(int numpoints, const double &x_0);
+    TimeSeriesD GetVelocityDistributionAtXSection(const double &x, int direction);
+    CVector GetVelocity(const CPosition &pp);
+    CPathwaySet BuildTrajectories(const vector<CPosition> pts, const double &dx, const double &x_end, const double &tol, const double &diffusion);
+    CPathway CreateSingleTrajectoryFixDx(const CPosition &pp, const double &dx0, const double &x_end, const double &D, const double &tol);
+    gsl_rng *rng_ptr;
 
 };
 vector<ijval> GetClosestCells(vector<ijval> vec, int n);

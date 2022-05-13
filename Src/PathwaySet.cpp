@@ -1,8 +1,8 @@
 #include "PathwaySet.h"
 #include "Utilities.h"
 #include "grid.h"
+#include "command.h"
 
-vector<string> CPathwaySet::list_of_commands = vector<string>({"CreateDistribution","WriteToFile", "SetInverseCumulative", "WriteInverseCumulativeToFile"});
 
 CPathwaySet::CPathwaySet()
 {
@@ -502,8 +502,13 @@ bool CPathwaySet::HasCommand(const string &cmd)
 
 vector<string> CPathwaySet::Commands()
 {
-    //return vector<string>();
-    return list_of_commands;
+    vector<string> cmds;
+    for (map<string,command_parameters>::iterator i=Command::Command_Structures.begin(); i!=Command::Command_Structures.end(); i++)
+    {
+        if (i->second.Object==object_type::pathwayset)
+            cmds.push_back(i->first);
+    }
+    return cmds;
 }
 
 

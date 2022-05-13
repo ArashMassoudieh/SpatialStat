@@ -12,7 +12,6 @@ public:
     FunctionOutPut Execute(const string &cmd, const map<string,string> &arguments);
     static bool HasCommand(const string &cmd);
     static vector<string> Commands();
-    static vector<string> list_of_commands;
 };
 
 #endif // TIMESERIESD_H

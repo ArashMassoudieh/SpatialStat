@@ -9,14 +9,10 @@
 
 using namespace std;
 
-enum class command_type {creator, modifier};
-
-
 struct command_parameters
 {
     object_type Object;
     object_type Output;
-    command_type CommandType;
 };
 
 class Command

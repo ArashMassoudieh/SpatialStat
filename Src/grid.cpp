@@ -3,18 +3,21 @@
 #include "NormalDist.h"
 #include "environment.h"
 #include "Distribution.h"
-
-
-vector<string> Grid::list_of_commands = vector<string>({"CreateGrid","AssignKField","WriteKFieldToVTP","RenormalizeKField","SolveHydro","WriteHydroSolutionToVTP","SolveTransport"\
-                                                       ,"WriteConcentrationToVTP","GetConcentrationBTCAtX"});
+#include "Copula.h"
+#include "gsl/gsl_rng.h"
+#include "gsl/gsl_cdf.h"
+#include "gsl/gsl_randist.h"
 
 Grid::Grid():Interface()
 {
-
+    rng_ptr = gsl_rng_alloc (gsl_rng_taus);
+    gsl_rng_set (rng_ptr, 0);
 }
 
 bool Grid::CreateGrid(const map<string,string> &Arguments)
 {
+    rng_ptr = gsl_rng_alloc (gsl_rng_taus);
+    gsl_rng_set (rng_ptr, 0);
     GeometricParameters.nx = atoi(Arguments.at("nx").c_str());
     GeometricParameters.ny = atoi(Arguments.at("ny").c_str());
     GeometricParameters.dx = atof(Arguments.at("dx").c_str());
@@ -40,8 +43,13 @@ vector<string> Grid::commands()
 
 vector<string> Grid::Commands()
 {
-    //return vector<string>();
-    return list_of_commands;
+    vector<string> cmds;
+    for (map<string,command_parameters>::iterator i=Command::Command_Structures.begin(); i!=Command::Command_Structures.end(); i++)
+    {
+        if (i->second.Object==object_type::grid)
+            cmds.push_back(i->first);
+    }
+    return cmds;
 }
 
 bool Grid::HasCommand(const string &cmd)
@@ -1363,8 +1371,211 @@ TimeSeriesD Grid::GetConcentrationBTCAtX(const map<string,string> &Arguments)
         filename_d = Arguments.at("filename_d");
 
     return GetConcentrationBTCAtX(species_id, aquiutils::atof(Arguments.at("x")),filename,filename_d);
+}
 
+CPathwaySet Grid::CreateTrajectories(const map<string,string> &Arguments)
+{
+    int n=1;
+    double x_0=GeometricParameters.dx/2;
+    if (Arguments.count("n")!=0)
+        n = aquiutils::atoi(Arguments.at("n"));
+    if (Arguments.count("x_0")!=0)
+        x_0 = aquiutils::atof(Arguments.at("x_0"));
+
+    vector<CPosition> pts = InitializeTrajectories(n,x_0);
+}
+
+vector<CPosition> Grid::InitializeTrajectories(int numpoints, const double &x_0)
+{
+    vector<CPosition> pts;
+    pts.clear();
+    int burnout = 0;
+    TimeSeriesD boundary_v_dist = GetVelocityDistributionAtXSection(x_0,0);
+    double v_max = boundary_v_dist.maxC();
+
+    double y_0 = unitrandom()*GeometricParameters.dy*(GeometricParameters.ny-1);
+    CPosition pt_0; pt_0.x = x_0; pt_0.y = y_0;
+    double v_x = GetVelocity(pt_0)[0];
+    pts.push_back(pt_0);
+    for (int i = 1; i < numpoints; i++)
+    {
+        bool accepted = false;
+        while (!accepted)
+        {
+            y_0 = unitrandom()*GeometricParameters.dy*(GeometricParameters.ny-1);
+            pt_0.x = x_0; pt_0.y = y_0;
+            v_x = GetVelocity(pt_0)[0];
+            double u = unitrandom();
+            if (u < (v_x / v_max/5)) accepted = true;
+        }
+        pts.push_back(pt_0);
+
+        SetProgressValue(double(i) / double(numpoints));
+    }
+
+    return pts;
 
 }
+
+TimeSeriesD Grid::GetVelocityDistributionAtXSection(const double &x, int direction)
+{
+    TimeSeriesD out;
+    int i = int(x / GeometricParameters.dx);
+        for (int j = 0; j < GeometricParameters.ny; j++)
+            out.append(i + j * 10000, p[i][j].V[direction]);
+    return out;
+
+}
+
+CVector Grid::GetVelocity(const CPosition &pp)
+{
+    int i_floar_x = int(pp.x / GeometricParameters.dx);
+    int j_floar_x = int(pp.y / GeometricParameters.dy+0.5);
+    int i_floar_y = int(pp.x / GeometricParameters.dx+0.5);
+    int j_floar_y = int(pp.y / GeometricParameters.dy);
+    if (pp.x<=0 || pp.x>=(GeometricParameters.nx-1)*GeometricParameters.dx || pp.y<=0 || pp.y>=GeometricParameters.dy*(GeometricParameters.ny-1))
+    {
+        return CVector();
+    }
+
+    double vx1 = vx[i_floar_x][max(j_floar_x-1,0)] + 1.0/GeometricParameters.dx*(pp.x - GeometricParameters.dx*i_floar_x)*(vx[min(i_floar_x+1,GeometricParameters.nx-1)][max(j_floar_x-1,0)]-vx[i_floar_x][max(j_floar_x-1,0)]);
+    double vx2 = vx[i_floar_x][min(j_floar_x,GeometricParameters.ny-2)] + 1.0/GeometricParameters.dx*(pp.x - GeometricParameters.dx*i_floar_x)*(vx[min(i_floar_x+1,GeometricParameters.nx-1)][min(j_floar_x,GeometricParameters.ny-2)]-vx[i_floar_x][min(j_floar_x,GeometricParameters.ny-2)]);
+    double vx_interp = vx1 + (vx2-vx1)/GeometricParameters.dy*(pp.y-GeometricParameters.dy*(double(j_floar_x)-0.5));
+
+    double vy1 = vy[max(i_floar_y-1,0)][j_floar_y] + 1.0/GeometricParameters.dy*(pp.y - GeometricParameters.dy*j_floar_y)*(vy[max(i_floar_y-1,0)][min(j_floar_y+1,GeometricParameters.nx-1)]-vy[max(i_floar_y-1,0)][j_floar_y]);
+    double vy2 = vy[min(i_floar_y,GeometricParameters.nx-2)][j_floar_y] + 1.0/GeometricParameters.dy*(pp.y - GeometricParameters.dy*j_floar_y)*(vy[min(i_floar_y,GeometricParameters.nx-2)][min(j_floar_y+1,GeometricParameters.ny-1)]-vy[min(i_floar_y,GeometricParameters.nx-2)][j_floar_y]);
+    double vy_interp = vy1 + (vy2-vy1)/GeometricParameters.dx*(pp.x-GeometricParameters.dx*(double(i_floar_y)-0.5));
+
+    CVector V(2);
+    V[0] = vx_interp;
+    V[1] = vy_interp;
+    return V;
+}
+
+CPathwaySet Grid::BuildTrajectories(const vector<CPosition> pts, const double &dx, const double &x_end, const double &tol, const double &diffusion)
+{
+    CPathwaySet X(int(pts.size()));
+    unsigned int counter = 0;
+    #pragma omp parallel for
+    for (int i = 0; i < int(pts.size()); i++)
+    {
+        CPathway X1 = CreateSingleTrajectoryFixDx(pts[i], dx, x_end, diffusion, tol);
+        {   X.weighted = false;
+            X.paths[i] = X1;
+        }
+        #pragma omp critical
+        {
+            counter++;
+            SetProgressValue(double(counter) / double(pts.size()));
+        }
+    }
+
+    return X;
+}
+
+CPathway Grid::CreateSingleTrajectoryFixDx(const CPosition &pp, const double &dx0, const double &x_end, const double &D, const double &tol)
+{
+    double x0 = pp.x;
+    double backward = 1;
+    if (x_end<x0)
+        backward = -1;
+
+    CPosition pt = pp;
+    CPathway Trajectory;
+    Trajectory.weight = 1;
+    double t = 0;
+
+    bool ex = false;
+    int counter = 0;
+    while ( backward*x0<=backward*pt.x && backward*pt.x<=backward*x_end && ex==false)
+    {
+        counter ++;
+        CVector V = GetVelocity(pt);
+        if (V.getsize() == 0)
+            {
+                return Trajectory;
+            }
+        if (V[0]==0)
+        {
+            cout<< "Vx = 0!" <<endl;
+        }
+
+        double dx = fabs(dx0/(sqrt(pow(V[0],2)+pow(V[1],2)))*V[0]);
+
+        bool changed_sign = true;
+        while (changed_sign)
+        {   if (V.num == 2)
+            {
+                if (V[0]==0)
+                {
+                    cout<<"Vx = 0!"<<endl;
+                }
+
+                double dt0 = fabs(dx/V[0]);
+                if (dt0<0)
+                {
+                    cout<<"negative dt0!"<<endl;
+                }
+
+                CPosition p_new;
+                p_new.x = pt.x + backward*dt0*V[0];//+diffusion[0];
+                p_new.y = pt.y + backward*dt0*V[1];//+diffusion[1];
+                CVector V_new = GetVelocity(p_new);
+                if (V_new.getsize() == 0)
+                {
+                    return Trajectory;
+                }
+                if (V_new[0]*V[0]<0)
+                {
+                    cout<<"V changed sign!"<<endl;
+                    dx/=2;
+                }
+                else
+                {   changed_sign = false;
+                    double err = norm(V-V_new);
+                    double dt1;
+                    while (err>=tol)
+                    {
+
+                        if (V[0]==V_new[0])
+                            dt1 = fabs(dx/V[0]);
+                        else
+                            dt1 = fabs(dx*(log(fabs(V_new[0]))-log(fabs(V[0])))/(fabs(V_new[0])-fabs(V[0])));
+
+                        p_new.y = pt.y + 0.5*(V[1]+V_new[1])*dt1*backward;// + diffusion[1]*sqrt(dt1/dt0);
+                        p_new.x = pt.x + dx*backward; // + diffusion[0]*sqrt(dt1/dt0);
+                        CVector V_star = GetVelocity(p_new);
+                        if (V_star.getsize()!=2)
+                            return Trajectory;
+                        err = norm(V_star - V_new);
+                        V_new = V_star;
+                    }
+                    p_new.v = V_new;
+                    p_new.t = t+dt1;
+                    CVector diffusion(2);
+
+                    diffusion[0] = gsl_ran_gaussian(rng_ptr,sqrt(D*dt1));
+                    diffusion[1] = gsl_ran_gaussian(rng_ptr,sqrt(D*dt1));
+                    p_new.x = p_new.x + diffusion[0];
+                    p_new.y = p_new.y + diffusion[1];
+
+                    if (isnan(p_new.x))
+                    {
+                        cout<< "nan!" << endl;
+                    }
+                    Trajectory.append(p_new);
+                    pt = p_new;
+
+                    t += dt1;
+                }
+            }
+            else ex = true;
+        }
+    }
+
+    return Trajectory;
+}
+
+
 
 
