@@ -591,6 +591,7 @@ double CPathway::get_cross_time(double xx)
 vector<double> CPathway::get_cross_time_vx(double xx)
 {
     vector<double> out(2);
+
     if (uniform)
     {
         double dx = positions[1].x - positions[0].x;
@@ -627,3 +628,133 @@ vector<double> CPathway::get_cross_time_vx(double xx)
         }
     }
 }
+
+vtkSmartPointer<vtkPolyData> CPathway::TovtkPolyData(const double &z_factor, const double &offset, bool _log, bool _color)
+{
+    double max_v_x=1;
+    double min_v_x=0;
+    vtkSmartPointer<vtkPoints> points =
+            vtkSmartPointer<vtkPoints>::New();
+
+    vtkSmartPointer<vtkFloatArray> values =
+        vtkSmartPointer<vtkFloatArray>::New();
+
+    values->SetNumberOfComponents(1);
+    values->SetName("vx");
+
+    vtkSmartPointer<vtkFloatArray> vy =
+        vtkSmartPointer<vtkFloatArray>::New();
+
+    vy->SetNumberOfComponents(1);
+    vy->SetName("vy");
+
+    vtkSmartPointer<vtkFloatArray> tm =
+        vtkSmartPointer<vtkFloatArray>::New();
+
+    tm->SetNumberOfComponents(1);
+    tm->SetName("arrival time");
+
+    for (int i = 0; i<positions.size(); i++)
+    {
+
+        if (!_log)
+        {
+            double t[1] = { float(positions[i].v[0]) };
+            double _vy[1] = { float(positions[i].v[1]) };
+            double _at[1] = { float(positions[i].t) };
+            double p[3] = { positions[i].x, positions[i].y, t[0] * z_factor / max_v_x + offset };
+            points->InsertNextPoint(p);
+            values->InsertNextTuple(t);
+            vy->InsertNextTuple(_vy);
+            tm->InsertNextTuple(_at);
+
+
+        }
+        else
+        {
+            double t[1] = { float(positions[i].v[0]) };
+            double _vy[1] = { float(positions[i].v[1]) };
+            double _at[1] = { float(positions[i].t) };
+            double p[3] = { positions[i].x, positions[i].y, float(log(fabs(positions[i].v[0]) + 1e-12)) * z_factor / max_v_x + offset };
+            points->InsertNextPoint(p);
+            values->InsertNextTuple(t);
+            vy->InsertNextTuple(_vy);
+            tm->InsertNextTuple(_at);
+        }
+    }
+    vtkSmartPointer<vtkPolyLine> polyLine =
+        vtkSmartPointer<vtkPolyLine>::New();
+
+    polyLine->GetPointIds()->SetNumberOfIds(positions.size());
+    for (unsigned int i = 0; i < positions.size(); i++)
+    {
+        polyLine->GetPointIds()->SetId(i, i);
+    }
+
+    // Create a cell array to store the lines in and add the lines to it
+    vtkSmartPointer<vtkCellArray> cells =
+        vtkSmartPointer<vtkCellArray>::New();
+    cells->InsertNextCell(polyLine);
+
+    // Create a polydata to store everything in
+    vtkSmartPointer<vtkPolyData> polyData =
+        vtkSmartPointer<vtkPolyData>::New();
+
+    // Add the points to the dataset
+    polyData->SetPoints(points);
+
+    // Add the lines to the dataset
+    polyData->SetLines(cells);
+
+    // Find min and max z
+    double minz = min_v_x*z_factor / max_v_x + offset;
+    double maxz = max_v_x*z_factor / max_v_x + offset;
+
+    if (_log)
+    {
+        minz = log(fabs(min_v_x)+1e-12)*z_factor / max_v_x + offset;
+        maxz = log(fabs(max_v_x) + 1e-12)*z_factor / max_v_x + offset;
+    }
+
+    // Create the color map
+    vtkSmartPointer<vtkLookupTable> colorLookupTable =
+        vtkSmartPointer<vtkLookupTable>::New();
+    colorLookupTable->SetTableRange(minz, maxz);
+    colorLookupTable->Build();
+
+    if (_color)
+    {
+        // Generate the colors for each point based on the color map
+        vtkSmartPointer<vtkUnsignedCharArray> colors_2 =
+            vtkSmartPointer<vtkUnsignedCharArray>::New();
+        colors_2->SetNumberOfComponents(3);
+        colors_2->SetName("Colors");
+
+        for (int i = 0; i < polyData->GetNumberOfPoints(); i++)
+        {
+            double p[3];
+            polyData->GetPoint(i, p);
+
+            double dcolor[3];
+            colorLookupTable->GetColor(p[2], dcolor);
+
+            unsigned char color[3];
+            for (unsigned int j = 0; j < 3; j++)
+            {
+                color[j] = static_cast<unsigned char>(255.0 * dcolor[j]);
+            }
+
+            colors_2->InsertNextTupleValue(color);
+        }
+
+
+    }
+
+    polyData->GetPointData()->SetScalars(values);
+    polyData->GetPointData()->AddArray(vy);
+    polyData->GetPointData()->AddArray(tm);
+    // Visualization
+
+    return polyData;
+}
+

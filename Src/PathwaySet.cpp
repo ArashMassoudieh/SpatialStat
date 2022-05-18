@@ -109,10 +109,8 @@ void CPathwaySet::create_copula_paths(int n, CDistribution * dist, double x_min,
 }
 
 
-void CPathwaySet::write_vtk(vtkSmartPointer<vtkPolyDataMapper> mapper, string filename)
+bool CPathwaySet::write_vtk(vtkSmartPointer<vtkPolyDataMapper> mapper, string filename)
 {
-
-
 	vtkSmartPointer<vtkXMLPolyDataWriter> writer =
 		vtkSmartPointer<vtkXMLPolyDataWriter>::New();
 	writer->SetFileName(filename.c_str());
@@ -120,6 +118,7 @@ void CPathwaySet::write_vtk(vtkSmartPointer<vtkPolyDataMapper> mapper, string fi
 	// This is set so we can see the data in a text editor.
 	writer->SetDataModeToAscii();
 	writer->Write();
+    return true;
 
 }
 
@@ -169,10 +168,11 @@ CPathway CPathwaySet::snapshotatlocation(double x)
 	return Ptwy;
 }
 
-void CPathwaySet::make_uniform_at_x(double dx)
+bool CPathwaySet::make_uniform_at_x(double dx)
 {
 	for (int i = 0; i < paths.size(); i++)
 		paths[i] = paths[i].make_uniform_x(dx);
+    return true;
 }
 
 CTimeSeries<double> CPathwaySet::sample_velocities()
@@ -489,6 +489,15 @@ void CPathwaySet::set_progress_value(string s)
 FunctionOutPut CPathwaySet::Execute(const string &cmd, const map<string,string> &arguments)
 {
     FunctionOutPut output;
+    if (cmd=="Uniformize")
+    {   output.success = Uniformize(arguments);
+        output.output = nullptr;
+    }
+    if (cmd=="WriteToVTP")
+    {
+        output.success = WriteToVTP(arguments);
+        output.output = nullptr;
+    }
     return output;
 }
 
@@ -511,6 +520,95 @@ vector<string> CPathwaySet::Commands()
     return cmds;
 }
 
+bool CPathwaySet::Uniformize(const map<string,string> &Arguments)
+{
+    if (Arguments.count("dx")==0)
+        return false;
+
+    double dx = aquiutils::atof(Arguments.at("dx"));
+
+    return make_uniform_at_x(dx);
+}
+
+bool CPathwaySet::WriteToVTP(const map<string,string> &Arguments)
+{
+
+    string filename;
+    if (Arguments.count("filename")==0)
+        return false;
+    else
+        filename = Arguments.at("filename");
+
+    double z_factor=0;
+    double offset=0;
+    bool _log=false;
+    bool _color=false;
+    int interval=1;
+    if (Arguments.count("z_factor")!=0)
+        z_factor = aquiutils::atof(Arguments.at("z_factor"));
+
+    if (Arguments.count("offset")!=0)
+        offset = aquiutils::atof(Arguments.at("offset"));
+
+    if (Arguments.count("log")!=0)
+        _log = aquiutils::atoi(Arguments.at("log"));
+
+    if (Arguments.count("color")!=0)
+        _color = aquiutils::atoi(Arguments.at("color"));
+
+    if (Arguments.count("interval")!=0)
+        interval = aquiutils::atoi(Arguments.at("interval"));
+
+    WriteToVTP(filename,z_factor,offset,_log,_color, interval);
+
+    return true;
+}
+
+void CPathwaySet::WriteToVTP(const string &filename, const double &z_factor, const double &offset, bool _log, bool _color, int interval)
+{
+    vector<vtkSmartPointer<vtkPolyData>> outputmappers;
+        double max_v_x = 1;
+        set_progress_value(0);
+        for (int i = 0; i < paths.size(); i+=interval)
+        {	outputmappers.push_back(paths[i].TovtkPolyData(z_factor, offset, _log, _color));
+            set_progress_value((double)i/(double)n());
+        }
+
+        vtkSmartPointer<vtkAppendPolyData> appendFilter =
+            vtkSmartPointer<vtkAppendPolyData>::New();
+    #if VTK_MAJOR_VERSION <= 5
+        appendFilter->AddInputConnection(input1->GetProducerPort());
+        appendFilter->AddInputConnection(input2->GetProducerPort());
+    #else
+        for (int i=0; i<outputmappers.size(); i++)
+            appendFilter->AddInputData(outputmappers[i]);
+    #endif
+        appendFilter->Update();
+
+
+
+        // Visualization
+        vtkSmartPointer<vtkPolyDataMapper> mapper =
+            vtkSmartPointer<vtkPolyDataMapper>::New();
+    #if VTK_MAJOR_VERSION <= 5
+        mapper->SetInputConnection(polydata->GetProducerPort());
+    #else
+        mapper->SetInputConnection(appendFilter->GetOutputPort());
+        //mapper->SetInputData(polydata_1);
+    #endif
+
+        #ifdef QT_version
+        main_window->get_ui()->ShowOutput->append("Writing vtp file... ");
+        #endif // QT_version
+        vtkSmartPointer<vtkXMLPolyDataWriter> writer =
+            vtkSmartPointer<vtkXMLPolyDataWriter>::New();
+        writer->SetFileName(filename.c_str());
+        writer->SetInputData(mapper->GetInput());
+        // This is set so we can see the data in a text editor.
+        writer->SetDataModeToAscii();
+        writer->Write();
+
+}
 
 
 

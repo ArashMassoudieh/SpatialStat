@@ -28,12 +28,12 @@ public:
     void create_ou_paths(int n, CDistribution *dist, double x_min, double x_max, double kappa, double dx, double weight=1);
     void create_copula_paths(int n, CDistribution * dist, double x_min, double x_max, double epsilon, double r, double dx, double weight=1);
     void create_copula_paths(int n, CDistribution * dist, double x_min, double x_max, double epsilon, CCopula *copula, double dx, double weight=1);
-    void write_vtk(vtkSmartPointer<vtkPolyDataMapper>, string filename);
+    bool write_vtk(vtkSmartPointer<vtkPolyDataMapper>, string filename);
     vtkSmartPointer<vtkPolyDataMapper> pathways_vtk_pdt_vtp(double z_factor=1, double offset=0);
     CPathway snapshotattime(double t);
     CPathway snapshotatlocation(double x);
-    void make_uniform_at_x(double dx);
-    void make_uniform_at_t(double dt);
+    bool Uniformize(const map<string,string> &Arguments);
+    bool WriteToVTP(const map<string,string> &Arguments);
     CTimeSeries<double> sample_velocities();
     CPosition get_pair_v_pos(int increment, int num_seq=2);
     CTimeSeriesSet<double> get_pair_v(int increment, int n, int num_seq=2);
@@ -46,6 +46,9 @@ public:
     FunctionOutPut Execute(const string &cmd, const map<string,string> &arguments);
     static bool HasCommand(const string &cmd);
     static vector<string> Commands();
-
+private:
+    bool make_uniform_at_x(double dx);
+    void make_uniform_at_t(double dt);
+    void WriteToVTP(const string &filename, const double &z_factor, const double &offset, bool _log, bool _color, int interval);
 };
 

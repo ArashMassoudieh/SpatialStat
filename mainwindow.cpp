@@ -49,8 +49,12 @@ void MainWindow::on_test()
     environment.Execute(cmd12);
     Command cmd13 = Command("BTC1=grid.GetConcentrationBTCAtX(x=0.5,filename=BTC_c.txt,filename_d=BTC.txt)");
     environment.Execute(cmd13);
-    Command cmd14 = Command("pthways1=grid.CreateTrajectories(n=20,x_0=0.01,x_end=0.95,tol=0.001)");
+    Command cmd14 = Command("pthways1=grid.CreateTrajectories(n=20,x_0=0.01,dx=0.01,x_end=0.95,tol=0.001)");
     environment.Execute(cmd14);
+    Command cmd15 = Command("pthways1.Uniformize(dx=0.01)");
+    environment.Execute(cmd15);
+    Command cmd16 = Command("pthways1.WriteToVTP(filename=paths.vtp)");
+    environment.Execute(cmd16);
 
 
 }

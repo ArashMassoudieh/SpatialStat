@@ -48,6 +48,7 @@ public:
 	double get_cross_time(double x);
     vector<double> get_cross_time_vx(double x);
     double weight = 1;
+    vtkSmartPointer<vtkPolyData> TovtkPolyData(const double &z_factor, const double &offset, bool _log, bool _color);
 
 };
 

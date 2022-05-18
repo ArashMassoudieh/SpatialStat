@@ -78,7 +78,6 @@ Command::Command(const Command &C)
 
 void Command::Initialize_Command_Structure()
 {
-    command_parameters cmd;
     Command_Structures["CreateGrid"].Object = object_type::grid; Command_Structures["CreateGrid"].Output = object_type::grid;
     Command_Structures["CreateDistribution"].Object = object_type::distribution; Command_Structures["CreateDistribution"].Output = object_type::distribution;
     Command_Structures["WriteToFile"].Object = object_type::distribution; Command_Structures["WriteToFile"].Output = object_type::none;
@@ -93,7 +92,8 @@ void Command::Initialize_Command_Structure()
     Command_Structures["WriteConcentrationToVTP"].Object = object_type::grid; Command_Structures["WriteConcentrationToVTP"].Output = object_type::none;
     Command_Structures["GetConcentrationBTCAtX"].Object = object_type::grid; Command_Structures["GetConcentrationBTCAtX"].Output = object_type::timeseries;
     Command_Structures["CreateTrajectories"].Object = object_type::grid; Command_Structures["CreateTrajectories"].Output = object_type::pathwayset;
-
+    Command_Structures["Uniformize"].Object = object_type::pathwayset; Command_Structures["Uniformize"].Output = object_type::none;
+    Command_Structures["WriteToVTP"].Object = object_type::pathwayset; Command_Structures["WriteToVTP"].Output = object_type::none;
 
     Command_Structures_Initialized = true;
 }
