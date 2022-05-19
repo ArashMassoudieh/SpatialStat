@@ -80,7 +80,8 @@ void Command::Initialize_Command_Structure()
 {
     Command_Structures["CreateGrid"].Object = object_type::grid; Command_Structures["CreateGrid"].Output = object_type::grid;
     Command_Structures["CreateDistribution"].Object = object_type::distribution; Command_Structures["CreateDistribution"].Output = object_type::distribution;
-    Command_Structures["WriteToFile"].Object = object_type::distribution; Command_Structures["WriteToFile"].Output = object_type::none;
+    Command_Structures["WriteDistToFile"].Object = object_type::distribution; Command_Structures["WriteDistToFile"].Output = object_type::none;
+    Command_Structures["WriteTimeSeriesToFile"].Object = object_type::distribution; Command_Structures["WriteTimeSeriesToFile"].Output = object_type::none;
     Command_Structures["SetInverseCumulative"].Object = object_type::distribution; Command_Structures["WriteToFile"].Output = object_type::none;
     Command_Structures["WriteInverseCumulativeToFile"].Object = object_type::distribution; Command_Structures["WriteInverseCumulativeToFile"].Output = object_type::none;
     Command_Structures["AssignKField"].Object = object_type::grid; Command_Structures["AssignKField"].Output = object_type::none;
@@ -94,7 +95,8 @@ void Command::Initialize_Command_Structure()
     Command_Structures["CreateTrajectories"].Object = object_type::grid; Command_Structures["CreateTrajectories"].Output = object_type::pathwayset;
     Command_Structures["Uniformize"].Object = object_type::pathwayset; Command_Structures["Uniformize"].Output = object_type::none;
     Command_Structures["WriteToVTP"].Object = object_type::pathwayset; Command_Structures["WriteToVTP"].Output = object_type::none;
-
+    Command_Structures["GetMarginalVelocityDistribution"].Object = object_type::grid; Command_Structures["GetMarginalVelocityDistribution"].Output = object_type::timeseries;
+    Command_Structures["WriteTimeSeriesToFile"].Object = object_type::timeseries; Command_Structures["WriteTimeSeriesToFile"].Output = object_type::none;
     Command_Structures_Initialized = true;
 }
 

@@ -27,7 +27,7 @@ void MainWindow::on_test()
     environment.Execute(cmd1);
     Command cmd2 = Command("dist=CreateDistribution(type=lognormal,p0=1,p1=0,p2=1)");
     environment.Execute(cmd2);
-    Command cmd3 = Command("dist.WriteToFile(filename=test.txt,nbins=50");
+    Command cmd3 = Command("dist.WriteDistToFile(filename=test.txt,nbins=50");
     environment.Execute(cmd3);
     Command cmd4 = Command("dist.SetInverseCumulative(ninc=1000)");
     environment.Execute(cmd4);
@@ -55,6 +55,11 @@ void MainWindow::on_test()
     environment.Execute(cmd15);
     Command cmd16 = Command("pthways1.WriteToVTP(filename=paths.vtp)");
     environment.Execute(cmd16);
+    Command cmd17 = Command("vdist = grid.GetMarginalVelocityDistribution(direction=x)");
+    environment.Execute(cmd17);
+    Command cmd18 = Command("vdist.WriteTimeSeriesToFile(filename=v_dist.txt,nbins=50");
+    environment.Execute(cmd18);
+
 
 
 }

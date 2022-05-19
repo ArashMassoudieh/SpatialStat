@@ -37,6 +37,7 @@ public:
     bool WriteHydroSolutionToVTP(const map<string,string> &Arguments);
     CPathwaySet CreateTrajectories(const map<string,string> &Arguments);
     TimeSeriesD GetConcentrationBTCAtX(const map<string,string> &Arguments);
+    TimeSeriesD GetMarginalVelocityDistribution(const map<string,string> &Arguments);
     CTimeSeries<double> GetKValuesToTimeSeries(int k=0);
     void RemapKFieldBasedonMarginalDistribution(CDistribution *dist,int k=0);
     double MapToMarginalDistribution(const double &u, CDistribution *dist);
@@ -82,6 +83,7 @@ private:
     CPathwaySet BuildTrajectories(const vector<CPosition> pts, const double &dx, const double &x_end, const double &tol, const double &diffusion);
     CPathway CreateSingleTrajectoryFixDx(const CPosition &pp, const double &dx0, const double &x_end, const double &D, const double &tol);
     gsl_rng *rng_ptr;
+    TimeSeriesD GetMarginalVelocityDistribution(Direction dir, int nbins, const double &smoothing_factor);
 
 };
 vector<ijval> GetClosestCells(vector<ijval> vec, int n);

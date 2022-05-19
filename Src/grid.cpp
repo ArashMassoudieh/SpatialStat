@@ -111,7 +111,14 @@ FunctionOutPut Grid::Execute(const string &cmd, const map<string,string> &argume
         else
             output.success = false;
     }
-
+    if (cmd=="GetMarginalVelocityDistribution")
+    {
+        output.output = new TimeSeriesD(GetMarginalVelocityDistribution(arguments));
+        if (dynamic_cast<TimeSeriesD*>(output.output)->n>0)
+            output.success = true;
+        else
+            output.success = false;
+    }
 
     return output;
 }
@@ -1381,6 +1388,23 @@ TimeSeriesD Grid::GetConcentrationBTCAtX(const map<string,string> &Arguments)
     return GetConcentrationBTCAtX(species_id, aquiutils::atof(Arguments.at("x")),filename,filename_d);
 }
 
+TimeSeriesD Grid::GetMarginalVelocityDistribution(const map<string,string> &Arguments)
+{
+    Direction dir = Direction::x;
+    double smoothing_factor=0;
+    int nbins=50;
+    if (Arguments.count("direction")>0)
+        if (Arguments.at("direction")=="y")
+            dir = Direction::y;
+    if (Arguments.count("nbins")>0)
+        nbins = aquiutils::atoi(Arguments.at("nbins"));
+
+    if (Arguments.count("smoothing_factor")>0)
+        nbins = aquiutils::atoi(Arguments.at("smoothing_factor"));
+
+    return GetMarginalVelocityDistribution(dir,nbins,smoothing_factor);
+}
+
 CPathwaySet Grid::CreateTrajectories(const map<string,string> &Arguments)
 {
     int n=1;
@@ -1450,6 +1474,19 @@ TimeSeriesD Grid::GetVelocityDistributionAtXSection(const double &x, int directi
             out.append(i + j * 10000, p[i][j].V[direction]);
     return out;
 
+}
+
+TimeSeriesD Grid::GetMarginalVelocityDistribution(Direction dir, int nbins, const double &smoothing_factor)
+{
+    TimeSeriesD all_values;
+    int _dir;
+    if (dir==Direction::x) _dir=0; else _dir=1;
+    for (int i = 0; i < GeometricParameters.nx; i++)
+        for (int j = 0; j < GeometricParameters.ny; j++)
+            all_values.append(i + j * 10000, p[i][j].V[_dir]);
+
+
+    return TimeSeriesD(all_values.distribution(nbins, (all_values.maxC()-all_values.minC())*smoothing_factor));
 }
 
 CVector Grid::GetVelocity(const CPosition &pp)

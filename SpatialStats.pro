@@ -1,10 +1,10 @@
-#VTKBUILDPATH = /home/arash/Projects/VTK-build
-#VTKHEADERPATH = /home/arash/Projects/VTK
-#VTK_V = $$-9.0
+VTKBUILDPATH = /home/arash/Projects/VTK-build
+VTKHEADERPATH = /home/arash/Projects/VTK
+VTK_V = $$-9.0
 
-VTKBUILDPATH = /media/arash/E/Projects/VTK-9.1.0/VTK-build
-VTKHEADERPATH = /media/arash/E/Projects/VTK-9.1.0
-VTK_V = -9.1
+#VTKBUILDPATH = /media/arash/E/Projects/VTK-9.1.0/VTK-build
+#VTKHEADERPATH = /media/arash/E/Projects/VTK-9.1.0
+#VTK_V = -9.1
 QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets

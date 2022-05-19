@@ -19,6 +19,7 @@ struct FunctionOutPut
     Interface *output = nullptr;
 };
 
+enum class Direction {x, y};
 
 struct geometrical_parameters
 {
