@@ -9,13 +9,22 @@
 #include "Matrix_arma.h"
 #include "Matrix_arma_sp.h"
 #include "BTC.h"
-#include "Distribution.h"
 #include "vtk.h"
 #include "timeseriesd.h"
 #include "PathwaySet.h"
 
 using namespace std;
 
+struct field_gen_params
+{
+    int max_correl_n = 10;
+    double k_correlation_lenght_scale_x;
+    double k_correlation_lenght_scale_y;
+    int n_filled=0;
+    CTimeSeries<double> inversecdf;
+};
+
+class CDistribution;
 
 
 class Grid : public Interface

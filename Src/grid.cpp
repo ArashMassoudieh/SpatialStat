@@ -1,6 +1,6 @@
 #include "grid.h"
 #include "Utilities.h"
-#include "NormalDist.h"
+//#include "NormalDist.h"
 #include "environment.h"
 #include "Distribution.h"
 #include "Copula.h"
@@ -178,7 +178,7 @@ void Grid::Clear()
 
 void Grid::AssignNewK(int i, int j, field_gen_params *FieldGeneratorParameters)
 {
-    CNormalDist ND;
+
     correl_mat_vec M = GetCorrellMatrixVec(i, j, FieldGeneratorParameters);
     double mu;
     double sigma;
@@ -389,7 +389,7 @@ void Grid::RemapKFieldBasedonMarginalDistribution(CDistribution *dist,int k)
 {
     for (int i = 0; i < GeometricParameters.nx; i++)
         for (int j = 0; j < GeometricParameters.ny; j++)
-            p[i][j].K[k] = MapToMarginalDistribution(getnormalcdf(p[i][j].K_gauss[k]),dist);
+            p[i][j].K[k] = MapToMarginalDistribution(stdnormal_cdf(p[i][j].K_gauss[k]),dist);
 
 }
 

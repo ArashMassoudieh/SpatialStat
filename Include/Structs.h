@@ -1,10 +1,9 @@
-#pragma once
 #ifndef STRUCTS_H
 #define STRUCTS_H
 
 #include "Vector.h"
 #include "Concentrations.h"
-#include "BTC.h"
+//#include "BTC.h"
 #include "Matrix_arma.h"
 #include "Matrix_arma_sp.h"
 #include "Matrix.h"
@@ -63,14 +62,7 @@ struct ijval
     double val;
 };
 
-struct field_gen_params
-{
-    int max_correl_n = 10;
-    double k_correlation_lenght_scale_x;
-    double k_correlation_lenght_scale_y;
-    int n_filled=0;
-    CTimeSeries<double> inversecdf;
-};
+
 
 struct transportparameters
 {

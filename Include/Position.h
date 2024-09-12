@@ -18,7 +18,7 @@ public:
     double t_eff; //x / t;
     double weight;
     CVector v; // velocity vector
-    double getvar(string var, bool inverse=false);
+    double getvar(std::string var, bool inverse=false);
     bool reacted=false;
 };
 

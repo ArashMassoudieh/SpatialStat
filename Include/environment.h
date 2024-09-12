@@ -4,11 +4,12 @@
 
 #include <vector>
 #include <map>
-#include <interface.h>
 #include "command.h"
 #include <QTableWidget>
 #include <QProgressBar>
 using namespace std;
+
+class Interface;
 
 class Environment
 {

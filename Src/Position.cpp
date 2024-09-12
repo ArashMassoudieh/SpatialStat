@@ -56,7 +56,7 @@ CPosition::~CPosition()
 {
 }
 
-double CPosition::getvar(string var, bool inverse)
+double CPosition::getvar(std::string var, bool inverse)
 {
 	if (!inverse)
     {

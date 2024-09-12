@@ -1,7 +1,6 @@
 #pragma once
 #include <vector>
 #include "Position.h"
-#include "Distribution.h"
 #include "vtk.h"
 #include <string>
 #include <timeseriesd.h>
@@ -9,6 +8,8 @@
 #include "Copula.h"
 
 using namespace std;
+
+class CDistribution;
 
 class CPathway
 {

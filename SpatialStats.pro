@@ -17,7 +17,7 @@ CONFIG += c++14
 
 INCLUDEPATH += Include
 INCLUDEPATH += ../Utilities
-DEFINES += Use_Armadillo
+DEFINES += Use_Armadillo _arma _interface
 
 #Adding VTK Libraries
 LIBS += -L$$VTKBUILDPATH/lib/ -lvtkChartsCore$$VTK_V
@@ -195,7 +195,6 @@ SOURCES += \
     ../Utilities/Matrix.cpp \
     ../Utilities/Matrix_arma.cpp \
     ../Utilities/Matrix_arma_sp.cpp \
-    ../Utilities/NormalDist.cpp \
     ../Utilities/QuickSort.cpp \
     ../Utilities/Utilities.cpp \
     ../Utilities/Vector.cpp \
@@ -225,7 +224,6 @@ HEADERS += \
     ../Utilities/Matrix.h \
     ../Utilities/Matrix_arma.h \
     ../Utilities/Matrix_arma_sp.h \
-    ../Utilities/NormalDist.h \
     ../Utilities/QuickSort.h \
     ../Utilities/Utilities.h \
     ../Utilities/Vector.h \

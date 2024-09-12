@@ -6,6 +6,8 @@
 #include "interface.h"
 
 
+class CDistribution;
+
 using namespace std;
 class CPathwaySet : public Interface
 {

@@ -1,8 +1,8 @@
 #include "Copula.h"
-#include "NormalDist.h"
+//#include "NormalDist.h"
 #include "gsl/gsl_randist.h"
 #include "Utilities.h"
-
+#include "Distribution.h"
 CCopula::CCopula()
 {
     rng_ptr = gsl_rng_alloc (gsl_rng_taus);
@@ -20,8 +20,8 @@ double CCopula::evaluate11(double u1, double u2)
     if (aquiutils::tolower(copula) == "gaussian")
 	{
 		CVector Y0(2);
-		Y0[0] = stdnormal_inv(u1);
-		Y0[1] = stdnormal_inv(u2);
+        Y0[0] = stdnormal_inv(u1);
+        Y0[1] = stdnormal_inv(u2);
 		a1 = 1/sqrt(1 - pow(correlation,2))*exp(-0.5*dotproduct((M_inv*Y0), Y0));
 	}
     if (aquiutils::tolower(copula)== "frank")
