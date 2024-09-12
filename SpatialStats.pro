@@ -171,7 +171,7 @@ CONFIG(debug, debug|release) {
     message(Building in debug mode)
     #QMAKE_CXXFLAGS+= -fopenmp
     #QMAKE_LFLAGS +=  -fopenmp
-    ! macx: LIBS += -lgomp -lpthread -lgsl
+    ! macx: LIBS += -lgomp -lpthread -lgsl -larmadillo
     macx: LIBS += -lpthread
     DEFINES += NO_OPENMP DEBUG
 
@@ -211,6 +211,7 @@ SOURCES += \
     Src/interface.cpp \
     Src/script.cpp \
     Src/timeseriesd.cpp \
+    Src/timeseriessetd.cpp \
     main.cpp \
     mainwindow.cpp
 
@@ -241,6 +242,7 @@ HEADERS += \
     Include/interface.h \
     Include/script.h \
     Include/timeseriesd.h \
+    Include/timeseriessetd.h \
     Include/vtk.h \
     mainwindow.h
 

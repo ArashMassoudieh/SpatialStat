@@ -97,6 +97,8 @@ void Command::Initialize_Command_Structure()
     Command_Structures["WriteToVTP"].Object = object_type::pathwayset; Command_Structures["WriteToVTP"].Output = object_type::none;
     Command_Structures["GetMarginalVelocityDistribution"].Object = object_type::grid; Command_Structures["GetMarginalVelocityDistribution"].Output = object_type::timeseries;
     Command_Structures["WriteTimeSeriesToFile"].Object = object_type::timeseries; Command_Structures["WriteTimeSeriesToFile"].Output = object_type::none;
+    Command_Structures["GetVelocityDistributionAtXSection"].Object = object_type::timeseries; Command_Structures["GetVelocityDistributionAtXSection"].Output = object_type::none;
+
     Command_Structures_Initialized = true;
 }
 

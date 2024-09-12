@@ -11,6 +11,7 @@
 #include "BTC.h"
 #include "vtk.h"
 #include "timeseriesd.h"
+#include "timeseriessetd.h"
 #include "PathwaySet.h"
 
 using namespace std;
@@ -47,6 +48,7 @@ public:
     CPathwaySet CreateTrajectories(const map<string,string> &Arguments);
     TimeSeriesD GetConcentrationBTCAtX(const map<string,string> &Arguments);
     TimeSeriesD GetMarginalVelocityDistribution(const map<string,string> &Arguments);
+    TimeSeriesD GetVelocityDistributionAtXSection(const map<string,string> &Arguments);
     CTimeSeries<double> GetKValuesToTimeSeries(int k=0);
     void RemapKFieldBasedonMarginalDistribution(CDistribution *dist,int k=0);
     double MapToMarginalDistribution(const double &u, CDistribution *dist);
@@ -87,12 +89,17 @@ private:
     TimeSeriesD GetConcentrationBTCAtX(int species_counter, const double &x, const string &filename, const string &filename_d);
     double GetConcentrationAtX(int species_counter, const double &x, int timestep);
     vector<CPosition> InitializeTrajectories(int numpoints, const double &x_0);
-    TimeSeriesD GetVelocityDistributionAtXSection(const double &x, int direction);
+    TimeSeriesD GetVelocityDistributionAtXSection(const double &x, Direction dir, int nbins, const double &smoothing_factor);
+    TimeSeriesD GetVelocitiesAtXSection(const double &x, Direction dir);
     CVector GetVelocity(const CPosition &pp);
     CPathwaySet BuildTrajectories(const vector<CPosition> pts, const double &dx, const double &x_end, const double &tol, const double &diffusion);
     CPathway CreateSingleTrajectoryFixDx(const CPosition &pp, const double &dx0, const double &x_end, const double &D, const double &tol);
     gsl_rng *rng_ptr;
     TimeSeriesD GetMarginalVelocityDistribution(Direction dir, int nbins, const double &smoothing_factor);
+    TimeSeriesSetD GetVelocityCorrelationsBasedOnRandomSamples(int nsamples, double dx0, double x_inc, bool magnitude);
+    CPosition GetARandomPoint();
+    CVector GetPairVelocity(const CPosition &pp, double dx0, double x_inc, bool magnitude);
+    CVector GetVelocityAt(const CPosition &pp);
 
 };
 vector<ijval> GetClosestCells(vector<ijval> vec, int n);

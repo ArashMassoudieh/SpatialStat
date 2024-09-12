@@ -119,6 +119,30 @@ bool Environment::Execute(const Command &cmd)
         return output.success;
 
     }
+    if (TimeSeriesSetD::HasCommand(cmd.command))
+    {
+        if (Objects.count(cmd.object_name)==0)
+        {
+            Objects[cmd.object_name] = new TimeSeriesSetD();
+            Objects[cmd.object_name]->parent = this;
+        }
+        if (cmd.Command_Structures[cmd.command].Output!=object_type::none)
+        {
+            output = dynamic_cast<CPathwaySet*>(Objects[cmd.object_name])->Execute(cmd.command, cmd.arguments);
+            if (cmd.output_name!="")
+                Objects[cmd.output_name] = output.output;
+        }
+        else
+        {
+            output = dynamic_cast<CPathwaySet*>(Objects[cmd.object_name])->Execute(cmd.command, cmd.arguments);
+        }
+        Objects[cmd.object_name]->parent = this;
+        current_progress_bar->setValue(100);
+        outputwindow->update();
+        QCoreApplication::processEvents();
+        return output.success;
+
+    }
 
     return false;
 }

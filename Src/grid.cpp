@@ -119,6 +119,14 @@ FunctionOutPut Grid::Execute(const string &cmd, const map<string,string> &argume
         else
             output.success = false;
     }
+    if (cmd=="GetVelocityDistributionAtXSection")
+    {
+        output.output = new TimeSeriesD(GetVelocityDistributionAtXSection(arguments));
+        if (dynamic_cast<TimeSeriesD*>(output.output)->n>0)
+            output.success = true;
+        else
+            output.success = false;
+    }
 
     return output;
 }
@@ -1406,6 +1414,28 @@ TimeSeriesD Grid::GetMarginalVelocityDistribution(const map<string,string> &Argu
     return GetMarginalVelocityDistribution(dir,nbins,smoothing_factor);
 }
 
+TimeSeriesD Grid::GetVelocityDistributionAtXSection(const map<string,string> &Arguments)
+{
+    Direction dir = Direction::x;
+    double smoothing_factor=0;
+    int nbins=50;
+    double x = 0;
+    if (Arguments.count("x")==0)
+        return false;
+    else
+        x = aquiutils::atof(Arguments.at("x"));
+    if (Arguments.count("direction")>0)
+        if (Arguments.at("direction")=="y")
+            dir = Direction::y;
+    if (Arguments.count("nbins")>0)
+        nbins = aquiutils::atoi(Arguments.at("nbins"));
+
+    if (Arguments.count("smoothing_factor")>0)
+        nbins = aquiutils::atoi(Arguments.at("smoothing_factor"));
+
+    return GetVelocityDistributionAtXSection(x, dir,nbins,smoothing_factor);
+}
+
 CPathwaySet Grid::CreateTrajectories(const map<string,string> &Arguments)
 {
     int n=1;
@@ -1440,7 +1470,7 @@ vector<CPosition> Grid::InitializeTrajectories(int numpoints, const double &x_0)
     vector<CPosition> pts;
     pts.clear();
     int burnout = 0;
-    TimeSeriesD boundary_v_dist = GetVelocityDistributionAtXSection(x_0,0);
+    TimeSeriesD boundary_v_dist = GetVelocitiesAtXSection(x_0,Direction::x);
     double v_max = boundary_v_dist.maxC();
 
     double y_0 = unitrandom()*GeometricParameters.dy*(GeometricParameters.ny-1);
@@ -1467,14 +1497,28 @@ vector<CPosition> Grid::InitializeTrajectories(int numpoints, const double &x_0)
 
 }
 
-TimeSeriesD Grid::GetVelocityDistributionAtXSection(const double &x, int direction)
+TimeSeriesD Grid::GetVelocityDistributionAtXSection(const double &x, Direction dir, int nbins, const double &smoothing_factor)
 {
-    TimeSeriesD out;
+    TimeSeriesD all_values;
+    int _dir;
+    if (dir==Direction::x) _dir=0; else _dir=1;
     int i = int(x / GeometricParameters.dx);
         for (int j = 0; j < GeometricParameters.ny; j++)
-            out.append(i + j * 10000, p[i][j].V[direction]);
-    return out;
+            all_values.append(i + j * 10000, p[i][j].V[_dir]);
 
+    return TimeSeriesD(all_values.distribution(nbins, (all_values.maxC()-all_values.minC())*smoothing_factor));
+}
+
+TimeSeriesD Grid::GetVelocitiesAtXSection(const double &x, Direction dir)
+{
+    TimeSeriesD all_values;
+    int _dir;
+    if (dir==Direction::x) _dir=0; else _dir=1;
+    int i = int(x / GeometricParameters.dx);
+        for (int j = 0; j < GeometricParameters.ny; j++)
+            all_values.append(i + j * 10000, p[i][j].V[_dir]);
+
+    return all_values;
 }
 
 TimeSeriesD Grid::GetMarginalVelocityDistribution(Direction dir, int nbins, const double &smoothing_factor)
@@ -1639,6 +1683,142 @@ CPathway Grid::CreateSingleTrajectoryFixDx(const CPosition &pp, const double &dx
     return Trajectory;
 }
 
+TimeSeriesSetD Grid::GetVelocityCorrelationsBasedOnRandomSamples(int nsamples, double dx0, double x_inc, bool magnitude)
+{
+    CTimeSeriesSet<double> output(2);
+    for (int i=0; i<nsamples; i++)
+    {
+        CPosition pt = GetARandomPoint();
+        CVector V = v_correlation_single_point(pt,dx0,x_inc, magnitude);
+        if (V.num==2)
+        {
+            output.BTC[0].append(i,V[0]);
+            output.BTC[1].append(i,V[1]);
+        }
+    }
+    return output;
+}
 
+CPosition Grid::GetARandomPoint()
+{
+    CPosition out;
+    out.x = unitrandom()*GeometricParameters.dx*(GeometricParameters.nx-1);
+    out.y = unitrandom()*GeometricParameters.dy*(GeometricParameters.ny-1);
+    return out;
+}
+
+CVector Grid::GetPairVelocity(const CPosition &pp, double dx0, double x_inc, bool magnitude)
+{
+    CPosition pt = pp;
+    CPosition p_new;
+    CVector Vout;
+    double x_end = pt.x + dx0;
+    bool ex = false;
+    while (pt.x < x_end && ex==false)
+    {
+        CVector V = GetVelocity(pt);
+        if (V[0]<0)
+        {
+            cout<<"Negative Velocity! Quiting! "<<endl;
+            return Vout;
+        }
+
+        if (V.getsize() == 0)
+            {
+                return Vout;
+            }
+        if (V[0]<0) return Vout;
+        double dx = min(x_inc/(sqrt(pow(V[0],2)+pow(V[1],2)))*V[0],x_end-pt.x);
+
+        bool changed_sign = true;
+        while (changed_sign)
+        {   if (V.num == 2)
+            {
+                if (V[0]==0)
+                {
+                    cout<<"Vx = 0!"<<endl;
+                }
+                double dt = dx/V[0];
+                p_new.x = pt.x + dt*V[0];
+                p_new.y = pt.y + dt*V[1];
+                CVector V_new = GetVelocity(p_new);
+
+                if (V_new.getsize() == 0)
+                {
+                    return Vout;
+                }
+                if (V_new[0]<=0) return CVector();
+                if (V_new[0]*V[0]<0)
+                {
+                    cout<<"V changed sign!"<<endl;
+                    dx/=2;
+                }
+                else
+                {   changed_sign = false;
+                    if (V[0]==V_new[0])
+                        dt = dx/V[0];
+                    else
+                        dt = dx*(log(V_new[0])-log(V[0]))/(V_new[0]-V[0]);
+                    if (dt<0)
+                    {
+                        cout<<"Negative dt!"<<endl;
+                    }
+                    p_new.y = pt.y + 0.5*(V[1]+V_new[1])*dt;
+                    p_new.x = pt.x + dx;
+                    V_new = GetVelocity(p_new);
+                    if (V_new.num!=2)
+                        return CVector();
+                    p_new.v = V_new;
+                    p_new.t += dt;
+                    pt = p_new;
+
+                }
+            }
+            else
+            {
+                return Vout;
+            }
+        }
+    }
+    Vout = CVector(2);
+    if (!magnitude)
+    {
+        Vout[0] = GetVelocity(pp)[0];
+        Vout[1] = GetVelocity(p_new)[0];
+    }
+    else
+    {
+        Vout[0] = sqrt(pow(GetVelocity(pp)[0],2)+pow(GetVelocity(pp)[1],2));
+        Vout[1] = sqrt(pow(GetVelocity(p_new)[0],2)+pow(GetVelocity(p_new)[1],2));
+    }
+
+    return Vout;
+
+}
+
+CVector Grid::GetVelocityAt(const CPosition &pp)
+{
+    int i_floar_x = int(pp.x / GeometricParameters.dx);
+    int j_floar_x = int(pp.y / GeometricParameters.dy+0.5);
+    int i_floar_y = int(pp.x / GeometricParameters.dx+0.5);
+    int j_floar_y = int(pp.y / GeometricParameters.dy);
+    if (pp.x<=0 || pp.x>=(GeometricParameters.nx-1)*GeometricParameters.dx || pp.y<=0 || pp.y>=GeometricParameters.dy*(GeometricParameters.ny-1))
+    {
+        return CVector();
+    }
+
+    double vx1 = vx[i_floar_x][max(j_floar_x-1,0)] + 1.0/GeometricParameters.dx*(pp.x - GeometricParameters.dx*i_floar_x)*(vx[min(i_floar_x+1,GeometricParameters.nx-1)][max(j_floar_x-1,0)]-vx[i_floar_x][max(j_floar_x-1,0)]);
+    double vx2 = vx[i_floar_x][min(j_floar_x,GeometricParameters.ny-2)] + 1.0/GeometricParameters.dx*(pp.x - GeometricParameters.dx*i_floar_x)*(vx[min(i_floar_x+1,GeometricParameters.nx-1)][min(j_floar_x,GeometricParameters.ny-2)]-vx[i_floar_x][min(j_floar_x,GeometricParameters.ny-2)]);
+    double vx_interp = vx1 + (vx2-vx1)/GeometricParameters.dy*(pp.y-GeometricParameters.dy*(double(j_floar_x)-0.5));
+
+    double vy1 = vy[max(i_floar_y-1,0)][j_floar_y] + 1.0/GeometricParameters.dy*(pp.y - GeometricParameters.dy*j_floar_y)*(vy[max(i_floar_y-1,0)][min(j_floar_y+1,GeometricParameters.nx-1)]-vy[max(i_floar_y-1,0)][j_floar_y]);
+    double vy2 = vy[min(i_floar_y,GeometricParameters.nx-2)][j_floar_y] + 1.0/GeometricParameters.dy*(pp.y - GeometricParameters.dy*j_floar_y)*(vy[min(i_floar_y,GeometricParameters.nx-2)][min(j_floar_y+1,GeometricParameters.ny-1)]-vy[min(i_floar_y,GeometricParameters.nx-2)][j_floar_y]);
+    double vy_interp = vy1 + (vy2-vy1)/GeometricParameters.dx*(pp.x-GeometricParameters.dx*(double(i_floar_y)-0.5));
+
+    CVector V(2);
+    V[0] = vx_interp;
+    V[1] = vy_interp;
+    return V;
+}
 
 

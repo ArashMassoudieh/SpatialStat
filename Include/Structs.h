@@ -10,7 +10,7 @@
 
 class Interface;
 
-enum class object_type {none, grid, distribution, timeseries, pathwayset};
+enum class object_type {none, grid, distribution, timeseries, pathwayset, timeseriesset};
 
 struct FunctionOutPut
 {
