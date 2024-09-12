@@ -190,6 +190,7 @@ void Grid::AssignNewK(int i, int j, field_gen_params *FieldGeneratorParameters)
     else
     {
         CMatrix_arma M_inv = inv(M.M_22);
+        CVector_arma Prod = M_inv*M.V_21;
         mu = dotproduct(M_inv*M.V_21, M.V_RHS);
         sigma = 1.0 - dotproduct(M_inv*M.V_21, M.V_21);
     }
