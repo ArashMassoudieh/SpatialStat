@@ -4,7 +4,10 @@
 #include "Distribution.h"
 #include <QTableWidget>
 #include <QCoreApplication>
-
+#include "timeseriesd.h"
+#include "timeseriessetd.h"
+#include "Pathway.h"
+#include "PathwaySet.h"
 
 Environment::Environment(QTableWidget *_outputwindow)
 {

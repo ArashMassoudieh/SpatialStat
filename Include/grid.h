@@ -10,9 +10,8 @@
 #include "Matrix_arma_sp.h"
 #include "BTC.h"
 #include "vtk.h"
-#include "timeseriesd.h"
-#include "timeseriessetd.h"
-#include "PathwaySet.h"
+#include "Position.h"
+#include "gsl/gsl_rng.h"
 
 using namespace std;
 
@@ -26,7 +25,10 @@ struct field_gen_params
 };
 
 class CDistribution;
-
+class TimeSeriesD;
+class TimeSeriesSetD;
+class CPathwaySet;
+class CPathway;
 
 class Grid : public Interface
 {

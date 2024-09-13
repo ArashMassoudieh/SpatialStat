@@ -12,6 +12,7 @@ public:
     TimeSeriesD(const CTimeSeries<double> &timeseries);
     FunctionOutPut Execute(const string &cmd, const map<string,string> &arguments);
     static bool HasCommand(const string &cmd);
+    vector<string> commands();
     static vector<string> Commands();
 private:
     bool WriteToFile(const map<string,string> &arguments);

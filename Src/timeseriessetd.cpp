@@ -43,7 +43,7 @@ bool TimeSeriesSetD::WriteToFile(const map<string,string> &arguments)
 
 }
 
-bool TimeSeriesD::HasCommand(const string &cmd)
+bool TimeSeriesSetD::HasCommand(const string &cmd)
 {
     if (aquiutils::lookup(Commands(),cmd)!=-1)
         return true;
@@ -51,7 +51,7 @@ bool TimeSeriesD::HasCommand(const string &cmd)
         return false;
 }
 
-vector<string> TimeSeriesD::Commands()
+vector<string> TimeSeriesSetD::Commands()
 {
     vector<string> cmds;
     for (map<string,command_parameters>::iterator i=Command::Command_Structures.begin(); i!=Command::Command_Structures.end(); i++)

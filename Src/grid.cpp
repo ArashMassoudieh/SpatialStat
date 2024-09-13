@@ -7,6 +7,10 @@
 #include "gsl/gsl_rng.h"
 #include "gsl/gsl_cdf.h"
 #include "gsl/gsl_randist.h"
+#include "timeseriesd.h"
+#include "timeseriessetd.h"
+#include "Pathway.h"
+#include "PathwaySet.h"
 
 Grid::Grid():Interface()
 {
@@ -190,7 +194,7 @@ void Grid::AssignNewK(int i, int j, field_gen_params *FieldGeneratorParameters)
     correl_mat_vec M = GetCorrellMatrixVec(i, j, FieldGeneratorParameters);
     double mu;
     double sigma;
-    if (M.V_RHS.num == 0)
+    if (M.V_RHS.num() == 0)
     {
         mu = 0;
         sigma = 1;
@@ -1689,7 +1693,7 @@ TimeSeriesSetD Grid::GetVelocityCorrelationsBasedOnRandomSamples(int nsamples, d
     for (int i=0; i<nsamples; i++)
     {
         CPosition pt = GetARandomPoint();
-        CVector V = v_correlation_single_point(pt,dx0,x_inc, magnitude);
+        CVector V = GetPairVelocity(pt,dx0,x_inc, magnitude);
         if (V.num==2)
         {
             output.BTC[0].append(i,V[0]);

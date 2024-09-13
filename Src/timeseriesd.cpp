@@ -42,12 +42,10 @@ bool TimeSeriesD::WriteToFile(const map<string,string> &arguments)
 
 }
 
-bool TimeSeriesD::HasCommand(const string &cmd)
+#ifdef _interface
+vector<string> TimeSeriesD::commands()
 {
-    if (aquiutils::lookup(Commands(),cmd)!=-1)
-        return true;
-    else
-        return false;
+    return Commands();
 }
 
 vector<string> TimeSeriesD::Commands()
@@ -61,3 +59,11 @@ vector<string> TimeSeriesD::Commands()
     return cmds;
 }
 
+bool TimeSeriesD::HasCommand(const string &cmd)
+{
+    if (aquiutils::lookup(Commands(),cmd)!=-1)
+        return true;
+    else
+        return false;
+}
+#endif // interface
