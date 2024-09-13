@@ -55,11 +55,15 @@ public:
     void RemapKFieldBasedonMarginalDistribution(CDistribution *dist,int k=0);
     double MapToMarginalDistribution(const double &u, CDistribution *dist);
     bool WriteKFieldToVTP(const string &filename="surface.vtp", const double &z_factor=0.5, bool _log = false);
+    bool WriteToVTP(const map<string,string> &Arguments);
     bool WriteHydroSolutionToVTP(const string &filename="solution.vtp", const double &z_factor=0.5, bool _log = false);
     bool SolveHydro(const double &leftboundary=0, const double &rightboundary=1);
     transportparameters TransportParameters;
-
-
+    FunctionOutPut AssignStandardNormal2ndDegree(const map<string,string> &Arguments);
+    bool SetStateVariable(const string &prop, const CVector_arma &v);
+    CVector_arma GetStateVariable(const string &prop);
+    bool SetStateVariable(int i, int j, const string &prop, const double &val);
+    double GetStateVariable(int i, int j, const string &prop);
 private:
     geometrical_parameters GeometricParameters;
     vector<vector<distributed_property> > p;

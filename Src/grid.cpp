@@ -75,6 +75,11 @@ FunctionOutPut Grid::Execute(const string &cmd, const map<string,string> &argume
     {   output.success = AssignKFieldToGrid(arguments);
         output.output = nullptr;
     }
+    if (cmd=="AssignKField_2nd_order")
+    {   FunctionOutPut outputtemp = AssignStandardNormal2ndDegree(arguments);
+        output.output = outputtemp.output;
+        output.success = outputtemp.success;
+    }
     if (cmd=="RenormalizeKField")
     {
         output.success = RenormalizeKField(arguments);
@@ -83,6 +88,11 @@ FunctionOutPut Grid::Execute(const string &cmd, const map<string,string> &argume
     if (cmd=="WriteKFieldToVTP")
     {
         output.success = WriteKFieldToVTP(arguments);
+        output.output = nullptr;
+    }
+    if (cmd=="WriteToVTP")
+    {
+        output.success = WriteToVTP(arguments);
         output.output = nullptr;
     }
     if (cmd=="SolveHydro")
@@ -171,6 +181,155 @@ bool Grid::AssignKFieldToGrid(const map<string,string> &Arguments)
     return true;
 
 }
+
+FunctionOutPut Grid::AssignStandardNormal2ndDegree(const map<string,string> &Arguments)
+{
+    Clear();
+
+    field_gen_params Field_Generator_Parameters;
+    Field_Generator_Parameters.k_correlation_lenght_scale_x = aquiutils::atof(Arguments.at("correlation_length_x"));
+    Field_Generator_Parameters.k_correlation_lenght_scale_y = aquiutils::atof(Arguments.at("correlation_length_y"));
+    double ro_x = 1/Field_Generator_Parameters.k_correlation_lenght_scale_x;
+    double ro_y = 1/Field_Generator_Parameters.k_correlation_lenght_scale_y;
+    srand(time(NULL));
+    CMatrix_arma M(GeometricParameters.nx*GeometricParameters.ny);
+    CVector_arma RHS(GeometricParameters.nx*GeometricParameters.ny);
+    for (int i=1; i<GeometricParameters.nx-1; i++)
+        for (int j=1; j<GeometricParameters.ny-1; j++)
+        {
+            M[get_cell_no(i, j)] = 2*sqrt(2*GeometricParameters.dx*ro_x) + 2*sqrt(2*GeometricParameters.dy*ro_y);
+            M[get_cell_no(i,j-1)] = -sqrt(2*GeometricParameters.dy*ro_y);
+            M[get_cell_no(i,j+1)] = -sqrt(2*GeometricParameters.dy*ro_y);
+            M[get_cell_no(i+1,j)] = -sqrt(2*GeometricParameters.dx*ro_x);
+            M[get_cell_no(i-1,j)] = -sqrt(2*GeometricParameters.dx*ro_x);
+            RHS[get_cell_no(i,j)] = getnormalrand(0, 1);
+        }
+
+    int j=0;
+    for (int i=1; i<GeometricParameters.nx-1; i++)
+    {
+        M[get_cell_no(i, j)] = 1;
+    }
+
+    j=GeometricParameters.ny-1;
+    for (int i=1; i<GeometricParameters.nx-1; i++)
+    {
+        M[get_cell_no(i, j)] = 1;
+    }
+
+    int i=0;
+    for (int j=1; j<GeometricParameters.ny-1; j++)
+    {
+        M[get_cell_no(i, j)] = 1;
+    }
+
+    i=GeometricParameters.nx-1;
+    for (int j=1; j<GeometricParameters.ny-1; j++)
+    {
+        M[get_cell_no(i, j)] = 1;
+    }
+
+    CVector_arma V = RHS/M;
+    SetStateVariable("K_Gauss",V);
+
+    FunctionOutPut out;
+    out.success = true;
+    out.output = new Grid(*this);
+    return out;
+}
+
+
+bool Grid::SetStateVariable(const string &prop, const CVector_arma &v)
+{
+    if (v.size()!=GeometricParameters.nx*GeometricParameters.ny)
+        return false;
+    for (int i=0; i<GeometricParameters.nx; i++)
+        for (int j=0; j<GeometricParameters.ny; j++)
+            SetStateVariable(i,j, prop, v[get_cell_no(i,j)]);
+
+    return true;
+}
+
+CVector_arma Grid::GetStateVariable(const string &prop)
+{
+    CVector_arma out(GeometricParameters.nx*GeometricParameters.ny);
+    for (int i=0; i<GeometricParameters.nx; i++)
+        for (int j=0; j<GeometricParameters.ny; j++)
+            out[get_cell_no(i,j)] = GetStateVariable(i,j,prop);
+
+    return out;
+}
+
+bool Grid::SetStateVariable(int i, int j, const string &prop, const double &v)
+{
+    if (i>GeometricParameters.nx-1 || j>GeometricParameters.ny-1)
+        return false;
+
+    if (prop=="Kx")
+        p[i][j].K[0] = v;
+    else if (prop=="Ky")
+        p[i][j].K[1] = v;
+    else if (prop=="K")
+    {
+        p[i][j].K[0] = v;
+        p[i][j].K[1] = v;
+    }
+    else if (prop=="K_Gauss")
+    {
+        p[i][j].K_gauss[0]=v;
+        p[i][j].K_gauss[1]=v;
+    }
+    else if (prop=="Kx_Gauss")
+    {
+        p[i][j].K_gauss[0]=v;
+    }
+    else if (prop=="Ky_Gauss")
+    {
+        p[i][j].K_gauss[1]=v;
+    }
+    else if (prop=="u")
+    {
+        p[i][j].u=v;
+    }
+    else if (prop=="Vx")
+    {
+        p[i][j].V[0]=v;
+    }
+    else if (prop=="Vy")
+    {
+        p[i][j].V[1]=v;
+    }
+    return true;
+
+}
+
+double Grid::GetStateVariable(int i, int j, const string &prop)
+{
+    if (i>GeometricParameters.nx-1 || j>GeometricParameters.ny-1)
+        return 0;
+
+    if (prop=="Kx")
+        return p[i][j].K[0];
+    else if (prop=="Ky")
+        return p[i][j].K[1];
+    else if (prop=="K")
+        return p[i][j].K[0];
+    else if (prop=="K_Gauss")
+        return p[i][j].K_gauss[0];
+    else if (prop=="Kx_Gauss")
+        return p[i][j].K_gauss[0];
+    else if (prop=="Ky_Gauss")
+         return p[i][j].K_gauss[1];
+    else if (prop=="u")
+         return p[i][j].u;
+    else if (prop=="Vx")
+        return p[i][j].V[0];
+    else if (prop=="Vy")
+        return p[i][j].V[1];
+    else
+        return 0;
+}
+
 
 void Grid::Clear()
 {
@@ -419,6 +578,143 @@ CTimeSeries<double> Grid::GetKValuesToTimeSeries(int k)
 double Grid::MapToMarginalDistribution(const double &u, CDistribution *dist)
 {
     return dist->InverseCumulativeValue(u);
+}
+
+bool Grid::WriteToVTP(const map<string,string> &Arguments)
+{
+    if (Arguments.count("filename") == 0) return false;
+    string filename = Arguments.at("filename");
+    vtkSmartPointer<vtkPoints> points_3 =
+        vtkSmartPointer<vtkPoints>::New();
+
+    double maxk = GetStateVariable(Arguments.at("prop")).max();
+    double xx, yy, zz;
+    vtkSmartPointer<vtkFloatArray> values =
+        vtkSmartPointer<vtkFloatArray>::New();
+
+    values->SetNumberOfComponents(1);
+
+    values->SetName(Arguments.at("prop").c_str());
+
+    for (unsigned int x = 0; x < GeometricParameters.nx; x++)
+    {
+        for (unsigned int y = 0; y < GeometricParameters.ny; y++)
+        {
+            xx = x*GeometricParameters.dx;
+            yy = y*GeometricParameters.dy;
+            zz = GetStateVariable(x,y,Arguments.at("prop"));
+            float t[1] = { float(zz) };
+            points_3->InsertNextPoint(xx, yy, zz);
+            values->InsertNextTupleValue(t);
+        }
+    }
+
+    // Add the grid points to a polydata object
+    vtkSmartPointer<vtkPolyData> inputPolyData =
+        vtkSmartPointer<vtkPolyData>::New();
+    inputPolyData->SetPoints(points_3);
+
+    // Triangulate the grid points
+    vtkSmartPointer<vtkDelaunay2D> delaunay =
+        vtkSmartPointer<vtkDelaunay2D>::New();
+#if VTK_MAJOR_VERSION <= 5
+    delaunay->SetInput(inputPolyData);
+#else
+    delaunay->SetInputData(inputPolyData);
+#endif
+    delaunay->Update();
+    vtkPolyData* outputPolyData = delaunay->GetOutput();
+
+    double bounds[6];
+    outputPolyData->GetBounds(bounds);
+
+    // Find min and max z
+    double minz = bounds[4];
+    double maxz = bounds[5];
+
+    std::cout << "minz: " << minz << std::endl;
+    std::cout << "maxz: " << maxz << std::endl;
+
+    // Create the color map
+    vtkSmartPointer<vtkLookupTable> colorLookupTable =
+        vtkSmartPointer<vtkLookupTable>::New();
+    colorLookupTable->SetTableRange(minz, maxz);
+    colorLookupTable->Build();
+
+    // Generate the colors for each point based on the color map
+    vtkSmartPointer<vtkUnsignedCharArray> colors_2 =
+        vtkSmartPointer<vtkUnsignedCharArray>::New();
+    colors_2->SetNumberOfComponents(3);
+    colors_2->SetName("Colors");
+
+//	std::cout << "There are " << outputPolyData->GetNumberOfPoints()
+//		<< " points." << std::endl;
+
+    for (int i = 0; i < outputPolyData->GetNumberOfPoints(); i++)
+    {
+        double p[3];
+        outputPolyData->GetPoint(i, p);
+
+        double dcolor[3];
+        colorLookupTable->GetColor(p[2], dcolor);
+        //std::cout << "dcolor: "
+        //	<< dcolor[0] << " "
+        //	<< dcolor[1] << " "
+        //	<< dcolor[2] << std::endl;
+        unsigned char color[3];
+        for (unsigned int j = 0; j < 3; j++)
+        {
+            color[j] = static_cast<unsigned char>(255.0 * dcolor[j]);
+        }
+        //std::cout << "color: "
+        //	<< (int)color[0] << " "
+        //	<< (int)color[1] << " "
+        //	<< (int)color[2] << std::endl;
+
+        colors_2->InsertNextTupleValue(color);
+    }
+
+    outputPolyData->GetPointData()->SetScalars(values);
+
+
+    //Append the two meshes
+    vtkSmartPointer<vtkAppendPolyData> appendFilter =
+        vtkSmartPointer<vtkAppendPolyData>::New();
+#if VTK_MAJOR_VERSION <= 5
+    appendFilter->AddInputConnection(input1->GetProducerPort());
+    appendFilter->AddInputConnection(input2->GetProducerPort());
+#else
+    //appendFilter->AddInputData(polydata);
+    //appendFilter->AddInputData(polydata_1);
+    appendFilter->AddInputData(outputPolyData);
+#endif
+    appendFilter->Update();
+
+
+    // Visualization
+    vtkSmartPointer<vtkPolyDataMapper> mapper =
+        vtkSmartPointer<vtkPolyDataMapper>::New();
+#if VTK_MAJOR_VERSION <= 5
+    mapper->SetInputConnection(polydata->GetProducerPort());
+#else
+    mapper->SetInputConnection(appendFilter->GetOutputPort());
+    //mapper->SetInputData(polydata_1);
+#endif
+
+    vtkSmartPointer<vtkActor> actor =
+        vtkSmartPointer<vtkActor>::New();
+    actor->SetMapper(mapper);
+    actor->GetProperty()->SetPointSize(5);
+
+    vtkSmartPointer<vtkXMLPolyDataWriter> writer =
+        vtkSmartPointer<vtkXMLPolyDataWriter>::New();
+    writer->SetFileName(filename.c_str());
+    writer->SetInputData(mapper->GetInput());
+    // This is set so we can see the data in a text editor.
+    writer->SetDataModeToAscii();
+    writer->Write();
+    return true;
+
 }
 
 bool Grid::WriteKFieldToVTP(const string &filename, const double &z_factor, bool _log)

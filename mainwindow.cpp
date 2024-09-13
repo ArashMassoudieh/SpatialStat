@@ -59,6 +59,8 @@ void MainWindow::on_test()
     environment.Execute(cmd17);
     Command cmd18 = Command("vdist.WriteTimeSeriesToFile(filename=v_dist.txt,nbins=50");
     environment.Execute(cmd18);
+    Command cmd19 = Command("grid_2nd=grid.AssignKField_2nd_order()");
+    environment.Execute(cmd19);
 
 
 
