@@ -1,6 +1,11 @@
-VTKBUILDPATH = /home/arash/Projects/VTK-build
+#VTKBUILDPATH = /home/arash/Projects/VTK-build
+#VTKHEADERPATH = /home/arash/Projects/VTK
+#VTK_V = $$-9.0
+
+VTKBUILDPATH = /home/arash/Projects/VTK/VTK-build
 VTKHEADERPATH = /home/arash/Projects/VTK
 VTK_V = $$-9.0
+
 
 #VTKBUILDPATH = /media/arash/E/Projects/VTK-9.1.0/VTK-build
 #VTKHEADERPATH = /media/arash/E/Projects/VTK-9.1.0

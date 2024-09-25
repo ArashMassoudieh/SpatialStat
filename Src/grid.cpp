@@ -208,34 +208,34 @@ FunctionOutPut Grid::AssignStandardNormal2ndDegree(const map<string,string> &Arg
     for (int i=1; i<GeometricParameters.nx; i++)
         for (int j=1; j<GeometricParameters.ny; j++)
         {
-            M.matr(get_cell_no(i, j),get_cell_no(i, j)) = 2*sqrt(2*GeometricParameters.dx*ro_x) + 2*sqrt(2*GeometricParameters.dy*ro_y);
-            M.matr(get_cell_no(i, j),get_cell_no(i,j-1)) = -sqrt(2*GeometricParameters.dy*ro_y);
-            M.matr(get_cell_no(i, j),get_cell_no(i,j+1)) = -sqrt(2*GeometricParameters.dy*ro_y);
-            M.matr(get_cell_no(i, j),get_cell_no(i+1,j)) = -sqrt(2*GeometricParameters.dx*ro_x);
-            M.matr(get_cell_no(i, j),get_cell_no(i-1,j)) = -sqrt(2*GeometricParameters.dx*ro_x);
+            M.matr(get_cell_no(i, j),get_cell_no(i, j)) = 2/sqrt(2*GeometricParameters.dx*ro_x) + 2/sqrt(2*GeometricParameters.dy*ro_y);
+            M.matr(get_cell_no(i, j),get_cell_no(i,j-1)) = -1.0/sqrt(2*GeometricParameters.dy*ro_y);
+            M.matr(get_cell_no(i, j),get_cell_no(i,j+1)) = -1.0/sqrt(2*GeometricParameters.dy*ro_y);
+            M.matr(get_cell_no(i, j),get_cell_no(i+1,j)) = -1.0/sqrt(2*GeometricParameters.dx*ro_x);
+            M.matr(get_cell_no(i, j),get_cell_no(i-1,j)) = -1.0/sqrt(2*GeometricParameters.dx*ro_x);
             RHS[get_cell_no(i,j)] = getnormalrand(0, 1);
         }
 
     int j=0;
-    for (int i=1; i<GeometricParameters.nx-1; i++)
+    for (int i=0; i<GeometricParameters.nx+1; i++)
     {
         M.matr(get_cell_no(i, j),get_cell_no(i, j)) = 1;
     }
 
     j=GeometricParameters.ny;
-    for (int i=1; i<GeometricParameters.nx-1; i++)
+    for (int i=0; i<GeometricParameters.nx+1; i++)
     {
         M.matr(get_cell_no(i, j),get_cell_no(i, j)) = 1;
     }
 
     int i=0;
-    for (int j=1; j<GeometricParameters.ny-1; j++)
+    for (int j=0; j<GeometricParameters.ny+1; j++)
     {
         M.matr(get_cell_no(i, j),get_cell_no(i, j)) = 1;
     }
 
     i=GeometricParameters.nx;
-    for (int j=1; j<GeometricParameters.ny-1; j++)
+    for (int j=0; j<GeometricParameters.ny+1; j++)
     {
         M.matr(get_cell_no(i, j),get_cell_no(i, j)) = 1;
     }

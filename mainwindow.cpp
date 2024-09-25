@@ -59,7 +59,7 @@ void MainWindow::on_test()
     environment.Execute(cmd17);
     Command cmd18 = Command("vdist.WriteTimeSeriesToFile(filename=v_dist.txt,nbins=50");
     environment.Execute(cmd18);
-    Command cmd19 = Command("grid_2nd=grid.AssignKField_2nd_order(correlation_length_x=0.1,correlation_length_y=0.1)");
+    Command cmd19 = Command("grid_2nd=grid.AssignKField_2nd_order(correlation_length_x=10,correlation_length_y=0.1)");
     environment.Execute(cmd19);
     Command cmd20 = Command("grid_2nd.WriteFieldToVTP(filename=2nd_order_k_score.vtp,prop=K_Gauss");
     environment.Execute(cmd20);
