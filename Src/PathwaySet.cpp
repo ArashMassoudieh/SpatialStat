@@ -493,7 +493,7 @@ FunctionOutPut CPathwaySet::Execute(const string &cmd, const map<string,string> 
     {   output.success = Uniformize(arguments);
         output.output = nullptr;
     }
-    if (cmd=="WriteToVTP")
+    if (cmd=="WritePathwayToVTP")
     {
         output.success = WriteToVTP(arguments);
         output.output = nullptr;

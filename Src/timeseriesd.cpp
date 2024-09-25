@@ -66,4 +66,16 @@ bool TimeSeriesD::HasCommand(const string &cmd)
     else
         return false;
 }
+
+CDistribution TimeSeriesD::GetDistribution(int nbins)
+{
+    CDistribution dist;
+    dist.DistributionType = distribution__type::nonparameteric;
+    dist.density = distribution(nbins);
+    CTimeSeries<double> cumulative = dist.density.getcummulative();
+    cumulative = cumulative/cumulative.GetC(cumulative.n-1);
+    dist.inverse_cumulative = cumulative.inverse_cumulative_uniform();
+    return dist;
+}
+
 #endif // interface

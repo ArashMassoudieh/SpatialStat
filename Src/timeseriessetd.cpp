@@ -1,6 +1,7 @@
 #include "timeseriessetd.h"
 #include "timeseriesd.h"
 #include "command.h"
+#include "Distribution.h"
 
 
 TimeSeriesSetD::TimeSeriesSetD():CTimeSeriesSet<double>()

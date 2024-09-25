@@ -14,6 +14,7 @@ public:
     static bool HasCommand(const string &cmd);
     vector<string> commands();
     static vector<string> Commands();
+    CDistribution GetDistribution(int nbins);
 private:
     bool WriteToFile(const map<string,string> &arguments);
 };

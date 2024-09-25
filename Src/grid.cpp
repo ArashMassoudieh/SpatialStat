@@ -90,7 +90,7 @@ FunctionOutPut Grid::Execute(const string &cmd, const map<string,string> &argume
         output.success = WriteKFieldToVTP(arguments);
         output.output = nullptr;
     }
-    if (cmd=="WriteToVTP")
+    if (cmd=="WriteFieldToVTP")
     {
         output.success = WriteToVTP(arguments);
         output.output = nullptr;
@@ -141,6 +141,11 @@ FunctionOutPut Grid::Execute(const string &cmd, const map<string,string> &argume
         else
             output.success = false;
     }
+    if (cmd=="GetMarginalDistribution")
+    {
+        output.output = new CDistribution(GetMarginalDistribution(arguments));
+        output.success = true;
+    }
 
     return output;
 }
@@ -184,52 +189,61 @@ bool Grid::AssignKFieldToGrid(const map<string,string> &Arguments)
 
 FunctionOutPut Grid::AssignStandardNormal2ndDegree(const map<string,string> &Arguments)
 {
-    Clear();
-
     field_gen_params Field_Generator_Parameters;
-    Field_Generator_Parameters.k_correlation_lenght_scale_x = aquiutils::atof(Arguments.at("correlation_length_x"));
-    Field_Generator_Parameters.k_correlation_lenght_scale_y = aquiutils::atof(Arguments.at("correlation_length_y"));
+    if (Arguments.count("correlation_length_x")==0)
+        Field_Generator_Parameters.k_correlation_lenght_scale_x=1;
+    else
+        Field_Generator_Parameters.k_correlation_lenght_scale_x = aquiutils::atof(Arguments.at("correlation_length_x"));
+
+    if (Arguments.count("correlation_length_y")==0)
+        Field_Generator_Parameters.k_correlation_lenght_scale_y=1;
+    else
+        Field_Generator_Parameters.k_correlation_lenght_scale_y = aquiutils::atof(Arguments.at("correlation_length_y"));
+
     double ro_x = 1/Field_Generator_Parameters.k_correlation_lenght_scale_x;
     double ro_y = 1/Field_Generator_Parameters.k_correlation_lenght_scale_y;
     srand(time(NULL));
-    CMatrix_arma M(GeometricParameters.nx*GeometricParameters.ny);
-    CVector_arma RHS(GeometricParameters.nx*GeometricParameters.ny);
-    for (int i=1; i<GeometricParameters.nx-1; i++)
-        for (int j=1; j<GeometricParameters.ny-1; j++)
+    CMatrix_arma_sp M((GeometricParameters.nx+1)*(GeometricParameters.ny+1),(GeometricParameters.nx + 1)*(GeometricParameters.ny + 1));
+    CVector_arma RHS((GeometricParameters.nx+1)*(GeometricParameters.ny+1));
+    for (int i=1; i<GeometricParameters.nx; i++)
+        for (int j=1; j<GeometricParameters.ny; j++)
         {
-            M[get_cell_no(i, j)] = 2*sqrt(2*GeometricParameters.dx*ro_x) + 2*sqrt(2*GeometricParameters.dy*ro_y);
-            M[get_cell_no(i,j-1)] = -sqrt(2*GeometricParameters.dy*ro_y);
-            M[get_cell_no(i,j+1)] = -sqrt(2*GeometricParameters.dy*ro_y);
-            M[get_cell_no(i+1,j)] = -sqrt(2*GeometricParameters.dx*ro_x);
-            M[get_cell_no(i-1,j)] = -sqrt(2*GeometricParameters.dx*ro_x);
+            M.matr(get_cell_no(i, j),get_cell_no(i, j)) = 2*sqrt(2*GeometricParameters.dx*ro_x) + 2*sqrt(2*GeometricParameters.dy*ro_y);
+            M.matr(get_cell_no(i, j),get_cell_no(i,j-1)) = -sqrt(2*GeometricParameters.dy*ro_y);
+            M.matr(get_cell_no(i, j),get_cell_no(i,j+1)) = -sqrt(2*GeometricParameters.dy*ro_y);
+            M.matr(get_cell_no(i, j),get_cell_no(i+1,j)) = -sqrt(2*GeometricParameters.dx*ro_x);
+            M.matr(get_cell_no(i, j),get_cell_no(i-1,j)) = -sqrt(2*GeometricParameters.dx*ro_x);
             RHS[get_cell_no(i,j)] = getnormalrand(0, 1);
         }
 
     int j=0;
     for (int i=1; i<GeometricParameters.nx-1; i++)
     {
-        M[get_cell_no(i, j)] = 1;
+        M.matr(get_cell_no(i, j),get_cell_no(i, j)) = 1;
     }
 
-    j=GeometricParameters.ny-1;
+    j=GeometricParameters.ny;
     for (int i=1; i<GeometricParameters.nx-1; i++)
     {
-        M[get_cell_no(i, j)] = 1;
+        M.matr(get_cell_no(i, j),get_cell_no(i, j)) = 1;
     }
 
     int i=0;
     for (int j=1; j<GeometricParameters.ny-1; j++)
     {
-        M[get_cell_no(i, j)] = 1;
+        M.matr(get_cell_no(i, j),get_cell_no(i, j)) = 1;
     }
 
-    i=GeometricParameters.nx-1;
+    i=GeometricParameters.nx;
     for (int j=1; j<GeometricParameters.ny-1; j++)
     {
-        M[get_cell_no(i, j)] = 1;
+        M.matr(get_cell_no(i, j),get_cell_no(i, j)) = 1;
     }
 
-    CVector_arma V = RHS/M;
+    CVector_arma V = solve_ar(M, RHS);
+    //V.writetofile("V.txt");
+    //RHS.writetofile("RHS.txt");
+    //M.writetofile("M.txt");
     SetStateVariable("K_Gauss",V);
 
     FunctionOutPut out;
@@ -241,7 +255,7 @@ FunctionOutPut Grid::AssignStandardNormal2ndDegree(const map<string,string> &Arg
 
 bool Grid::SetStateVariable(const string &prop, const CVector_arma &v)
 {
-    if (v.size()!=GeometricParameters.nx*GeometricParameters.ny)
+    if (v.size()!=(GeometricParameters.nx+1)*(GeometricParameters.ny+1))
         return false;
     for (int i=0; i<GeometricParameters.nx; i++)
         for (int j=0; j<GeometricParameters.ny; j++)
@@ -252,7 +266,7 @@ bool Grid::SetStateVariable(const string &prop, const CVector_arma &v)
 
 CVector_arma Grid::GetStateVariable(const string &prop)
 {
-    CVector_arma out(GeometricParameters.nx*GeometricParameters.ny);
+    CVector_arma out((GeometricParameters.nx+1)*(GeometricParameters.ny+1));
     for (int i=0; i<GeometricParameters.nx; i++)
         for (int j=0; j<GeometricParameters.ny; j++)
             out[get_cell_no(i,j)] = GetStateVariable(i,j,prop);
@@ -260,9 +274,32 @@ CVector_arma Grid::GetStateVariable(const string &prop)
     return out;
 }
 
+
+CDistribution Grid::GetMarginalDistribution(const string &prop, int nbins)
+{
+    TimeSeriesD samples;
+    for (int i=0; i<GeometricParameters.nx; i++)
+        for (int j=0; j<GeometricParameters.ny; j++)
+            samples.append(i+j*GeometricParameters.nx, GetStateVariable(i,j,prop));
+
+    CDistribution dist = samples.GetDistribution(nbins);
+    return dist;
+}
+
+CDistribution Grid::GetMarginalDistribution(const map<string,string> &Arguments)
+{
+    string prop = Arguments.at("prop");
+    int n_bins = 40;
+    if (Arguments.count("nbins")!=0)
+        n_bins = atoi(Arguments.at("nbins").c_str());
+
+    return GetMarginalDistribution(prop, n_bins);
+}
+
+
 bool Grid::SetStateVariable(int i, int j, const string &prop, const double &v)
 {
-    if (i>GeometricParameters.nx-1 || j>GeometricParameters.ny-1)
+    if (i>GeometricParameters.nx || j>GeometricParameters.ny)
         return false;
 
     if (prop=="Kx")
@@ -305,7 +342,7 @@ bool Grid::SetStateVariable(int i, int j, const string &prop, const double &v)
 
 double Grid::GetStateVariable(int i, int j, const string &prop)
 {
-    if (i>GeometricParameters.nx-1 || j>GeometricParameters.ny-1)
+    if (i>GeometricParameters.nx || j>GeometricParameters.ny)
         return 0;
 
     if (prop=="Kx")

@@ -86,7 +86,7 @@ void Command::Initialize_Command_Structure()
     Command_Structures["WriteInverseCumulativeToFile"].Object = object_type::distribution; Command_Structures["WriteInverseCumulativeToFile"].Output = object_type::none;
     Command_Structures["AssignKField"].Object = object_type::grid; Command_Structures["AssignKField"].Output = object_type::none;
     Command_Structures["WriteKFieldToVTP"].Object = object_type::grid; Command_Structures["WriteKFieldToVTP"].Output = object_type::none;
-    Command_Structures["WriteToVTP"].Object = object_type::grid; Command_Structures["WriteToVTP"].Output = object_type::none;
+    Command_Structures["WritePathwayToVTP"].Object = object_type::pathwayset; Command_Structures["WritePathwayToVTP"].Output = object_type::none;
     Command_Structures["RenormalizeKField"].Object = object_type::grid; Command_Structures["RenormalizeKField"].Output = object_type::none;
     Command_Structures["SolveHydro"].Object = object_type::grid; Command_Structures["SolveHydro"].Output = object_type::none;
     Command_Structures["WriteHydroSolutionToVTP"].Object = object_type::grid; Command_Structures["WriteHydroSolutionToVTP"].Output = object_type::none;
@@ -95,11 +95,12 @@ void Command::Initialize_Command_Structure()
     Command_Structures["GetConcentrationBTCAtX"].Object = object_type::grid; Command_Structures["GetConcentrationBTCAtX"].Output = object_type::timeseries;
     Command_Structures["CreateTrajectories"].Object = object_type::grid; Command_Structures["CreateTrajectories"].Output = object_type::pathwayset;
     Command_Structures["Uniformize"].Object = object_type::pathwayset; Command_Structures["Uniformize"].Output = object_type::none;
-    Command_Structures["WriteToVTP"].Object = object_type::pathwayset; Command_Structures["WriteToVTP"].Output = object_type::none;
+    Command_Structures["WriteFieldToVTP"].Object = object_type::grid; Command_Structures["WriteFieldToVTP"].Output = object_type::none;
     Command_Structures["GetMarginalVelocityDistribution"].Object = object_type::grid; Command_Structures["GetMarginalVelocityDistribution"].Output = object_type::timeseries;
     Command_Structures["WriteTimeSeriesToFile"].Object = object_type::timeseries; Command_Structures["WriteTimeSeriesToFile"].Output = object_type::none;
     Command_Structures["GetVelocityDistributionAtXSection"].Object = object_type::timeseries; Command_Structures["GetVelocityDistributionAtXSection"].Output = object_type::none;
     Command_Structures["AssignKField_2nd_order"].Object = object_type::grid; Command_Structures["AssignKField_2nd_order"].Output = object_type::grid;
+    Command_Structures["GetMarginalDistribution"].Object = object_type::grid; Command_Structures["GetMarginalDistribution"].Output = object_type::distribution;
 
     Command_Structures_Initialized = true;
 }

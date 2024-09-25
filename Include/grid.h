@@ -62,6 +62,8 @@ public:
     FunctionOutPut AssignStandardNormal2ndDegree(const map<string,string> &Arguments);
     bool SetStateVariable(const string &prop, const CVector_arma &v);
     CVector_arma GetStateVariable(const string &prop);
+    CDistribution GetMarginalDistribution(const string &prop, int nbins);
+    CDistribution GetMarginalDistribution(const map<string,string> &Arguments);
     bool SetStateVariable(int i, int j, const string &prop, const double &val);
     double GetStateVariable(int i, int j, const string &prop);
 private:

@@ -4,6 +4,7 @@
 #include "BTCSet.h"
 #include "interface.h"
 
+class CDistribution;
 
 class TimeSeriesSetD : public CTimeSeriesSet<double>, public Interface
 {
